@@ -1,0 +1,5 @@
+#!/bin/bash
+set -euo pipefail
+
+# echo path line by line
+echo $PATH | sed 's/:/\n/g'
