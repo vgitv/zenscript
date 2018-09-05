@@ -1,0 +1,9 @@
+#!/bin/bash
+set -euo pipefail
+
+scriptPath=${0%/*}
+libPath=${scriptPath}/../lib
+
+source ${libPath}/misc
+
+title 'test'
