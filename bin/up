@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+# Update system. Store log file in $HOME/.opt/log/up.log
+
 echo `date` > $HOME/.opt/log/up.log
 
 echo '# update...'

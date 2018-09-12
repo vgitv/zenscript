@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+# Display the 256 colors available in shell.
+
 str1='##'
 str2='  '
 
