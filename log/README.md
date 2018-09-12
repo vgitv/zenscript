@@ -1,0 +1,3 @@
+# .opt/log
+
+Log files.
