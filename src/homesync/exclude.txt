@@ -1,0 +1,3 @@
+.*
+Vidéos/
+Téléchargements/

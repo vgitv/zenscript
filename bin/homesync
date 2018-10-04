@@ -1,0 +1,60 @@
+#!/bin/bash
+set -euo pipefail
+
+# SAUVEGARDE DU HOME : /!\ ne sauvegarde pas "Vidéos" et "Téléchargements"
+# Script permettant de synchroniser son home avec un dossier de préférence sur un disque externe. La commande
+# rsync ne copie que les fichiers qui ont été modifiés ou qui sont apparus. Ce script permet d'éviter les
+# fausses manipulations (invertion du répertoire source et destination par exemple).
+#
+# Utilisé sans paramètre, ce script copie le home dans un même dossier sur un dique spécifique.
+# Avec comme paramètre le nom du dossier source, ce script sauvegarde le
+# home dans ce dossier (ce qui peut permettre d'effectuer une sauvegarde secondaire à un autre endroit, mais
+# du home uniquement).
+#
+# En vue d'utiliser ce script sans paramètre (c'est sa vocation première), ne pas hésiter à modifier les
+# variables $dd et $dest (nom du disque dur et nom du dossier de synchronisation).
+#
+# DÉTAIL DU PROGRAMME :
+# Sauvegarde les éléments du home SAUF ceux listés dans ./exclude.txt
+# Ne sauvegarde pas les éléments de ./exclude.txt SAUF ceux listés dans ./include.txt
+
+
+
+# VARIABLES
+# default disk identifier
+dd='gaston'
+
+# default destination directory
+dest='HOME_BACKUPS'
+
+exclude="${HOME}/.opt/src/homesync/exclude.txt"
+include="${HOME}/.opt/src/homesync/include.txt"
+
+
+
+# TRAITEMENT PARAMÈTRE
+if [ $# -eq 0 ]; then
+    # si pas d'arguments nom par défaut
+    backupspath="/media/${USER}/${dd}/${dest}"
+else
+    # sinon le nom du dossier est l'argument
+    backupspath="$1"
+fi
+
+
+
+# COMMANDE PRINCIPALE
+# -a : conserve toutes les infos (droits, date modif...)
+# -r : sauvegarde récursivement (sous dossiers etc)
+# -v : mode verbeux
+# -h : human readable
+# --exclude-from : dossier(s) ignorés
+# --include-from : dossier(s) conservés malgré le exclude
+# --delete       : efface sur backup les fichiers disparus
+cd
+rsync -arvh --exclude-from=${exclude} --include-from=${include} --delete ${HOME} ${backupspath}
+
+
+
+# FIN PROGRAMME
+echo 'WELL DONE !!'
