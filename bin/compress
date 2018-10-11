@@ -1,0 +1,9 @@
+#!/bin/bash
+set -euo pipefail
+
+# Compression bzip2
+
+directory=$1
+archive=${directory}.tar.bz2
+
+tar -jcvf ${archive} ${directory}
