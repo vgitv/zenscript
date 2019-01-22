@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+
+# screen cast with ffmpeg
+# works for example with an avi output :
+# scast screencast.avi
+
+output_file=${1}
+screen_resolution=`xdpyinfo | awk '/dimensions:/ { print $2 }'`
+
+ffmpeg \
+    -f x11grab \
+    -s ${screen_resolution} \
+    -r 25 \
+    -i :0.0 \
+    -q:v 2 \
+    ${output_file}

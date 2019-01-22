@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+
+# eadmin = edit admin
+# edit pdf, with recto and verso of an id card for instance
+# works for jpg and png pictures
+
+latexfile="${HOME}/.opt/src/eadmin/main.tex"
+
+pdflatex -output-directory /tmp -file-line-error -halt-on-error ${latexfile}
+cp /tmp/main.pdf .
