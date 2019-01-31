@@ -2,8 +2,10 @@
 set -euo pipefail
 
 # eadmin = edit admin
-# edit pdf, with recto and verso of an id card for instance
-# works for jpg and png pictures
+
+# Edit pdf, with recto and verso of an id card for instance
+# You must have a "recto.jpg" and a "verso.jpg" in your current directory
+# Works also for png pictures
 
 latexfile="${HOME}/.opt/src/eadmin/main.tex"
 
