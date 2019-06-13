@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 class Pret(object):
 
-    def __init__(self, capital, T, duree):
+    def __init__(self, capital, T, duree, Ta):
 
         # ---------------------------------------------------------------------------------------------------
         # attributs paramètres
@@ -20,6 +20,9 @@ class Pret(object):
         # durée remboursement en années
         self.m_duree = duree
 
+        # taux d'assurance annuel
+        self.m_Ta = Ta
+
 
 
         # ---------------------------------------------------------------------------------------------------
@@ -29,6 +32,9 @@ class Pret(object):
         # taux d'intérêts mensuel (taux annuel / 12)
         self.m_t = T / 12
 
+        # taux d'assurance mensuel
+        self.m_ta = Ta / 12
+
         # nombre de mensualités
         self.m_n = duree * 12
 
@@ -36,7 +42,10 @@ class Pret(object):
         self.m_C = np.repeat(0.0, self.m_n + 1)
         self.m_C[0] = capital
 
-        # montant (constant) d'une mensualité (assurance + intérêts + capital)
+        # assurance mensuelle (constante)
+        self.m_assurance = self.m_ta * self.m_capital
+
+        # montant (constant) d'une mensualité sans l'assurance (intérêts + capital)
         self.m_mens = (self.m_t * self.m_C[0]) / (1 - (self.m_t + 1)**(-self.m_n))
 
         # part du remboursement chaque mois (varie)
@@ -55,6 +64,7 @@ class Pret(object):
 
 
         # par années, pour représentations graphiques
+        self.m_partAssuranceAnnee = np.repeat(0.0, self.m_duree)
         self.m_partInteretAnnee = np.repeat(0.0, self.m_duree)
         self.m_partCapitalAnnee = np.repeat(0.0, self.m_duree)
     #}
@@ -65,9 +75,9 @@ class Pret(object):
 
         # calcul part assurance / intérêts / capital par mois
         for mois in range(self.m_n):
-            self.m_partAssurance[mois + 1] = 0.0
+            self.m_partAssurance[mois + 1] = self.m_assurance
             self.m_partInteret[mois + 1] = self.m_t * self.m_C[mois]
-            self.m_partCapital[mois + 1] = self.m_mens - self.m_partInteret[mois + 1] - self.m_partAssurance[mois + 1]
+            self.m_partCapital[mois + 1] = self.m_mens - self.m_partInteret[mois + 1]
 
             self.m_C[mois + 1] = self.m_C[mois] - self.m_partCapital[mois + 1]
         #}
@@ -80,6 +90,7 @@ class Pret(object):
         # regroupement par années
         for i in range(self.m_duree):
             # print(i, "   ", 12*i+1, ':', 12*(i+1)+1, '|', self.m_partInteret[12*i+1:12*(i+1)+1])
+            self.m_partAssuranceAnnee[i] = 12 * self.m_assurance
             self.m_partInteretAnnee[i] = sum(self.m_partInteret[12*i+1:12*(i+1)+1])
             self.m_partCapitalAnnee[i] = sum(self.m_partCapital[12*i+1:12*(i+1)+1])
         #}
@@ -91,14 +102,23 @@ class Pret(object):
 
         chaine = ''
 
-        chaine += 'Prix achat : {}\n'
-        chaine += 'Taux annuel : {}\n'
-        chaine += 'Mensualitées : {}\n'
-        chaine += 'Total assurance : {}\n'
-        chaine += 'Total intérêts : {}\n'
-        chaine += 'Total remboursé : {}'
+        chaine += 'Prix achat : {} ; '
+        chaine += 'Total remboursé : {}\n'
+        chaine += 'Taux intérêts : {} % ; '
+        chaine += 'Taux assurance : {} %\n'
+        chaine += 'Mensualitées : {} + {} = {}\n'
+        chaine += 'Total assurance : {} ; '
+        chaine += 'Total intérêts : {}'
 
-        return chaine.format(self.m_capital, self.m_T, self.m_mens, self.m_totAssurance, self.m_totInteret, self.m_totRemboursement)
+        return chaine.format(
+            self.m_capital,
+            round(self.m_totRemboursement, 2),
+            round(self.m_T*100, 2),
+            round(self.m_Ta*100, 2),
+            round(self.m_mens, 2), round(self.m_assurance, 2), round(self.m_mens+self.m_assurance, 2),
+            round(self.m_totAssurance, 2),
+            round(self.m_totInteret, 2))
+        # str(round(self.m_mens, 2) + ' + ' + str(round(self.m_assurance, 2)) + ' = ' + str(round(self.m_mens+self.m_assurance, 2)),
     #}
 
 
@@ -115,6 +135,7 @@ class Pret(object):
         print(np.sum(self.m_partCapital))
         print('sum int')
         print(np.sum(self.m_partInteret))
+        print('assurance')
     #}
 
 
@@ -125,16 +146,17 @@ class Pret(object):
         ind = np.arange(self.m_n + 1)
 
         # bar plot
-        p1 = plt.bar(ind, self.m_partInteret, color='r')
-        p2 = plt.bar(ind, self.m_partCapital, bottom=self.m_partInteret, color='g')
+        p1 = plt.bar(ind, self.m_partAssurance, color='#5cacee')
+        p2 = plt.bar(ind, self.m_partInteret, bottom=self.m_partAssurance, color='#ffc125')
+        p3 = plt.bar(ind, self.m_partCapital, bottom=self.m_partAssurance+self.m_partInteret, color='#00688b')
 
         # paramètres graphiques
         plt.ylabel('Montant')
         plt.xlabel('Mois')
         t = self.__str__()
         plt.title(t)
-        plt.xticks(ind)
-        plt.legend((p1[0], p2[0]), ('Intérêts', 'Capital'))
+        plt.xticks(np.arange(0, self.m_n+1, 12))
+        # plt.legend((p1[0], p2[0], p3[0]), ('Assurance', 'Intérêts', 'Capital'))
 
         plt.show()
     #}
@@ -147,8 +169,9 @@ class Pret(object):
         ind = np.arange(1, self.m_duree + 1)
 
         # bar plot
-        p1 = plt.bar(ind, self.m_partInteretAnnee, color='r')
-        p2 = plt.bar(ind, self.m_partCapitalAnnee, bottom=self.m_partInteretAnnee, color='g')
+        p1 = plt.bar(ind, self.m_partAssuranceAnnee, color='#5cacee')
+        p2 = plt.bar(ind, self.m_partInteretAnnee, bottom=self.m_partAssuranceAnnee, color='#ffc125')
+        p3 = plt.bar(ind, self.m_partCapitalAnnee, bottom=self.m_partAssuranceAnnee+self.m_partInteretAnnee, color='#00688b')
 
         # paramètres graphiques
         plt.ylabel('Montant')
@@ -156,7 +179,7 @@ class Pret(object):
         t = self.__str__()
         plt.title(t)
         plt.xticks(ind)
-        plt.legend((p1[0], p2[0]), ('Intérêts', 'Capital'))
+        plt.legend((p1[0], p2[0], p3[0]), ('Assurance', 'Intérêts', 'Capital'))
 
         plt.show()
     #}
