@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Sript for testing library importation.
 
-scriptPath=${0%/*}
+scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 libPath=${scriptPath}/../lib
 source ${libPath}/misc.sh
 
