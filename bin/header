@@ -1,0 +1,20 @@
+#!/bin/bash
+set -euo pipefail
+
+# Affiche le header d'un fichier CSV ligne à ligne.
+#
+# Paramètres
+#     delim : délimiteur du fichier csv
+#     $@    : liste de fichiers à analyser
+#
+# Exemple : tous les header des fichiers du dossier courant
+#     header ',' *
+
+delim="$1"
+shift
+
+for fichier in "$@"; do
+    echo "-- ${fichier} -----"
+    head -n 1 "${fichier}" | sed "s/${delim}/\n/g"
+    echo
+done
