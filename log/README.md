@@ -1,3 +1,1 @@
-# .opt/log
-
-Log files.
+# Fichiers de log

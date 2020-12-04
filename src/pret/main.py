@@ -1,8 +1,8 @@
-#!/opt/anaconda3/bin/python
+#!/home/valentin/.anaconda3/bin/python
 
 from Pret import *
 
-testPret = Pret(200000, 0.0185, 20, 0.008)
+testPret = Pret(355000, 0.013, 25, 0.003)
 
 testPret.build()
 print(testPret)

@@ -1,8 +1,6 @@
-# System scripts
+# Scripts système
 
-## Directory structure
-
-* `bin/` : executables
-* `lib/` : libraries
-* `log/` : log files, for programs output
-* `src/` : source files
+* `bin/` : exécutables
+* `lib/` : librairies
+* `log/` : fichiers de log
+* `src/` : code source
