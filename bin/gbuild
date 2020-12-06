@@ -1,0 +1,49 @@
+#!/bin/bash
+set -euo pipefail
+
+# Montage vidéo : superposition d'un fichier vidéo et audio.
+#
+# Arborescence requise :
+# compositeur_titre_morceau
+# └── [projet]
+#     ├── [audio].wav
+#     └── [video].mp4
+#
+# Résultat gbuild -a [offset] (superposition) :
+# compositeur_titre_morceau
+# └── [projet]
+#     ├── [video].mp4
+#     ├── [audio].wav
+#     └── all.mkv
+#
+# Résultat gbuild -g [startTime] [stopTime] (génération finale) :
+# compositeur_titre_morceau
+# └── [projet]
+#     ├── [video].mp4
+#     ├── [audio].wav
+#     ├── all.mkv
+#     └── compositeur_titre_morceau.mkv
+
+
+option="$1"
+shift
+
+case "${option}" in
+    '-a')
+        offset="$1"
+        video="$(ls *.mp4)"
+        audio="$(ls *.wav)"
+        ffmpeg -i "${video}" -itsoffset "${offset}" -i "${audio}" -c copy all.mkv
+        ;;
+    '-g')
+        startTime="00:$1"
+        stopTime="00:$2"
+        baseDir="$( basename $( cd .. && pwd ) )"
+        compositeur="$(echo "${baseDir}" | cut -d '_' -f 1)"
+        titre="$(echo "${baseDir}" | cut -d '_' -f 2-)"
+        ffmpeg -i all.mkv -ss "${startTime}" -to "${stopTime}" -c copy "${compositeur}_${titre}.mkv"
+        ;;
+    *)
+        echo "Option ${option} invalide."
+        ;;
+esac
