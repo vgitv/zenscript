@@ -1,0 +1,32 @@
+#!/bin/bash
+set -euo pipefail
+
+# dépendances :
+#   libnotify-bin
+#   notify-osd
+#   dmenu
+
+flag="$1"
+
+function listUserDevice {
+    lsblk --raw -po MOUNTPOINT,NAME,LABEL | grep -E 'sd[^a][0-9]'
+}
+
+case "${flag}" in
+    '-m')
+        label="$(listUserDevice | awk -F '[ ]' '{ if ($1=="") print $2 " (" $3 ")" }' | dmenu -i -p 'Mount device')"
+        device="$(echo ${label} | awk '{ print $1 }')"
+        udisksctl mount -b "${device}"
+        notify-send -t 4000 "Device ${label} mounted."
+        ;;
+    '-u')
+        label="$(listUserDevice | awk -F '[ ]' '{ if ($1!="") print $2 " (" $3 ")" }' | dmenu -i -p 'Eject device')"
+        answer="$(echo -e 'Yes\nNo' | dmenu -i -p "Eject device ${label} ?")"
+        if [[ "${answer}" == 'Yes' ]]; then
+            device="$(echo ${label} | awk '{ print $1 }')"
+            udisksctl unmount -b "${device}"
+            udisksctl power-off -b "${device}"
+            notify-send -t 4000 "Le périphérique ${label} peut être ejecté en toute sécurité."
+        fi
+        ;;
+esac
