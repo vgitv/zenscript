@@ -9,7 +9,7 @@ set -euo pipefail
 flag="$1"
 
 function listPart {
-    lsblk --raw --noheadings -po TYPE,NAME,SIZE,LABEL,MOUNTPOINT | grep -E '^part /dev/sdb'
+    lsblk --raw --noheadings -po TYPE,NAME,SIZE,LABEL,MOUNTPOINT | grep -E '^part /dev/sd[^a]'
 }
 
 case "${flag}" in
