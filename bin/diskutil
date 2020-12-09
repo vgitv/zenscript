@@ -32,7 +32,7 @@ case "${flag}" in
         fi
         ;;
     '-l')
-        list="$(lsblk -po NAME,SIZE,TYPE,LABEL,MOUNTPOINT)"
+        list="$(lsblk -o NAME,SIZE,LABEL,MOUNTPOINT)"
         notify-send -t 10000 "${list}"
         ;;
     *)
