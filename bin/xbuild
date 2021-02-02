@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+vimFile="$(realpath "$1")"
+fileName="${vimFile%.*}"
+extension="${vimFile##*.}"
+
+if [[ -e Makefile ]]; then
+    make
+else
+    case "${extension}" in
+        'md')
+            pandoc -sN -V colorlinks -c "${HOME}/.opt/src/css_styles/style01.css" "${vimFile}" -o "${fileName}.html"
+            ;;
+        *)
+            echo "Unknown extension ${extension}."
+            ;;
+    esac
+fi
