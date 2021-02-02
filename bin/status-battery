@@ -1,0 +1,6 @@
+#!/bin/bash
+
+prefix='🔋'
+battery="${prefix} $(acpi | grep -oE '[0-9]*%' | tail -n 1)"
+
+echo -n "${battery}"

@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euo pipefail
+
+import ~/Téléchargements/screen_$(date '+%Y%m%d_%Hh%Mm%Ss').png

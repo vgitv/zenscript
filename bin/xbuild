@@ -1,16 +1,23 @@
 #!/bin/bash
 set -euo pipefail
 
+# Script utile pour compiler un document depuis Vim :
+# si un Makefile est trouvé dans le dosser courant, alors il est exécuté,
+# sinon, règle spécifique en fonction de l'extension du fichier.
+
 vimFile="$(realpath "$1")"
 fileName="${vimFile%.*}"
 extension="${vimFile##*.}"
 
 if [[ -e Makefile ]]; then
+    echo 'Makefile'
     make
 else
     case "${extension}" in
         'md')
+            echo 'Markdown file: generate html with pandoc.'
             pandoc -sN -V colorlinks -c "${HOME}/.opt/src/css_styles/style01.css" "${vimFile}" -o "${fileName}.html"
+            echo "${fileName}.html generated."
             ;;
         *)
             echo "Unknown extension ${extension}."
