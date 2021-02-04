@@ -23,7 +23,7 @@ for i in {16..231}; do
     printf "%4d" "$i"
     printf "\x1b[38;5;%sm${str1}\e[0m" "$i"
     printf "\x1b[48;5;%sm${str2}\e[0m" "$i"
-    if (( ($i - 15) % 6 == 0 )); then
+    if (( (i - 15) % 6 == 0 )); then
         printf "\n"
         if [[ $i -eq 51 || $i -eq 87  || $i -eq 123 || $i -eq 159 || $i -eq 195 || $i -eq 231 ]]; then
             printf "\n"
@@ -36,7 +36,7 @@ for i in {232..255}; do
     printf "%4d" "$i"
     printf "\x1b[38;5;%sm${str1}\e[0m" "$i"
     printf "\x1b[48;5;%sm${str2}\e[0m" "$i"
-    if (( ($i - 231) % 8 == 0 )); then
+    if (( (i - 231) % 8 == 0 )); then
         printf "\n"
     fi
 done
