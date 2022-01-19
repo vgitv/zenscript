@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+
+# sync configuration from ~/.bareconfig to a list of remote hosts
+# You should exchange keys with all the remote hosts for better experience
+
+# user for host machine
+user="$1"
+# file with one host by line
+hostList="$2"
+
+config='/tmp/bareconfig'
+
+[[ -d "${config}" ]] && echo "${config} already exists." && exit 1
+git clone "${HOME}/.bareconfig" "${config}"
+rm -rf "${config}/.git"
+rm -f "${config}/.gitignore"
+cp "${HOME}/.config/bash/after_bashrc.sh" "${config}/.config/bash"
+cp "${HOME}/.config/zsh/after_zshrc.sh" "${config}/.config/zsh"
+
+while IFS= read -r host; do
+    echo -e "\n# ${host}"
+    find "${config}" -mindepth 1 -maxdepth 1 -exec rsync -arvh {} ${user}@${host}: \;
+done < "${hostList}"
+
+rm -rf "${config}"
