@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# à tester
+
+method="${1:-https}"
+
+function config {
+    /usr/bin/git --git-dir="$HOME/.bareconfig/" --work-tree="$HOME" $@
+}
+
+case "${method}" in
+    'https')
+        git clone --bare https://github.com/vgitv/.bareconfig.git "$HOME/.bareconfig"
+        ;;
+    'ssh')
+        git clone --bare git@github.com:vgitv/.bareconfig.git "$HOME/.bareconfig"
+        ;;
+    *)
+        echo 'Invalid method. Choose beetween https or ssh, or leave empty for https cloning.'
+        ;;
+esac
+
+mkdir -p .config-backup
+if config checkout; then
+    echo "Checked out config.";
+else
+    echo "Backing up pre-existing dot files.";
+    config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} .config-backup/{}
+fi;
+config checkout
+config config --local status.showUntrackedFiles no
