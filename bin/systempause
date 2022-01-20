@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+# paquets requis :
+# - hibernate
+# - pm-utils
+
 choice="$(echo -e 'l\ne\nh\ns\nr' | dmenu -b -p '(l) lock, (e) exit dwm, (h) hibernate, (s) shutdown, (r) reboot')"
 # choice="$(echo -e 'Lock\nExit\nHibernate\nShutdown\nReboot' | dmenu -b -l 5)"
 
