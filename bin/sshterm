@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+
+# permet de proposer via dmenu une connexion aux hôtes référencés dans
+# ~/.ssh/config au travers de l'émulateur de terminal st
+# par facilité l'utilisateur est récupéré sur la ligne suivant le nom d'hôte
+# dans le fichier config, ie. pour utiliser ce script il faut respecter cette
+# règle arbitraire dans le config, soit dans cet ordre :
+# Host
+#     Hostname host
+#     User nom
+
+config="${HOME}/.ssh/config"
+
+host="$(grep -i Hostname "${config}" | awk '{ print $2 }' | dmenu -l 50)"
+user="$(grep -A 1 u3antu534 "${config}" | grep -i User | awk '{ print $2 }')"
+st ssh "${user}"@"${host}"
