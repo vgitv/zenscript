@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Permet d'initialiser la configuration depuis le repo bareconfig, backup des
+# fichiers présents initialement avant checkout
+
+method="${1:-https}"
+
+function config {
+    /usr/bin/git --git-dir="$HOME/.bareconfig/" --work-tree="$HOME" $@
+}
+
+function complexMove {
+    local back="$1"
+    local filepath="$2"
+
+    local dir
+    dir="$(dirname "${filepath}")"
+
+    if [[ -f "${HOME}/${filepath}" ]]; then
+        echo "complexMove ${HOME}/${filepath}"
+        mkdir -p "${back}/${dir}"
+        mv "${HOME}/${filepath}" "${back}/${dir}/"
+    fi
+}
+
+export -f complexMove
+
+# Clone git repo
+echo "Cloning .bareconfig repository to ${HOME}/.bareconfig"
+case "${method}" in
+    'https')
+        git clone --bare https://github.com/vgitv/.bareconfig.git "$HOME/.bareconfig"
+        true
+        ;;
+    'ssh')
+        git clone --bare git@github.com:vgitv/.bareconfig.git "$HOME/.bareconfig"
+        ;;
+    *)
+        echo 'Invalid method. Choose beetween https or ssh, or leave empty for https cloning.'
+        ;;
+esac
+
+# backup directory and temp directory
+timestamp="$(date '+%Y%m%d%H%M')"
+backup="${HOME}/.config-backup-${timestamp}"
+tempRepo="$(mktemp -d)"
+mkdir "${backup}"
+echo "Backup directory ${backup} created."
+echo "Working directory ${tempRepo} created."
+
+# cloning from bare repo to temp directory
+echo "Cloning from bare repo to temp directory ${tempRepo}"
+git clone ~/.bareconfig "${tempRepo}"
+rm -rf "${tempRepo}/.git"
+
+# find all files in repo and move Home-equivalent if exists to backup directory
+echo -e "\nMove HOME files to ${backup}:"
+find "${tempRepo}" -type f | cut -d "/" -f 4- | xargs -I FILE bash -c "complexMove ${backup} FILE"
+
+# all existing config files are moved, we can checkout the repository
+echo -e '\nCheckout bareconfig'
+config checkout
+config config --local status.showUntrackedFiles no
+echo 'Done.'
+
+# display last informations
+echo -e "\nBackup dir: ${backup}"
+echo "Cleaning ${tempRepo}"
+rm -r "${tempRepo}"
+echo 'Done.'
