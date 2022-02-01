@@ -1,0 +1,47 @@
+#!/bin/bash
+set -euo pipefail
+
+# sync configuration from ~/.bareconfig to a list of remote hosts
+# You should exchange keys with all the remote hosts for better experience
+
+# user for host machine
+user="$1"
+# file with one host by line
+hostList="$2"
+
+function safesync {
+    local filetype="$1"
+    local object="$2"
+    local dest="$3"
+
+    case "${filetype}" in
+        '-d')
+            if [[ -d "${object}" ]]; then
+                echo -e "\nINFO: sync directory ${object}"
+                rsync -arvh --delete "${object}" "${dest}"
+            else
+                echo "WARNING: no ${object} to sync."
+            fi
+            ;;
+        '-f')
+            if [[ -f "${object}" ]]; then
+                echo -e "\nINFO: sync file ${object}"
+                rsync -avh "${object}" "${dest}"
+            else
+                echo "WARNING: no ${object} to sync."
+            fi
+            ;;
+        *)
+            echo 'Unknown filetype. Choose beetween d and f.'
+            exit
+            ;;
+    esac
+}
+
+while IFS= read -r host; do
+    echo -e "\n# ${host}"
+    safesync -d "${HOME}/.vim" "${user}"@"${host}":
+    safesync -d "${HOME}/.config/nvim" "${user}"@"${host}":.config/
+    safesync -f "${HOME}/.bashrc" "${user}"@"${host}":
+    safesync -f "${HOME}/.config/bash/after_bashrc.sh" "${user}"@"${host}":.config/bash/
+done < "${hostList}"
