@@ -2,18 +2,25 @@
 set -euo pipefail
 
 dir="$(realpath "$1")"
-main='test_1234.md'
-rm -f "${main}"
+main='main.md'
+echo '<h1 id="maintitle">Notes</h1>' > "${main}"
 
 temp="$(mktemp)"
 echo $temp
 
-find "${dir}" -mindepth 1 -maxdepth 1 -type d > "${temp}"
+cd "${dir}"
+find . -mindepth 2 -name "*.html" | cut -d '/' -f 2- > "${temp}"
+cat $temp
 
 while IFS= read -r item; do
-    echo -e "\n\n# $(basename ${item})\n"
+    # echo -e "\n\n# $(basename ${item})\n"
     # find "${item}" -mindepth 1 -maxdepth 1 -type f -name "*.html" -exec echo {} \;
-    find "${item}" -mindepth 1 -maxdepth 2 -type f -name "*.html" -exec echo "* [$(basename {})]({})" \;
+    # find "${item}" -mindepth 1 -maxdepth 2 -type f -name "*.html" -exec echo "* [$(basename {})]({})" \;
+    echo "* [$(basename ${item%.html})](${item})" >> "${main}"
 done < "${temp}"
 
+xbuild "${main}"
+
 rm -f "${temp}"
+
+/usr/bin/tree -ifn -P "*.html" -I main.html | grep -E "^\./"
