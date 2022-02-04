@@ -3,7 +3,7 @@
 import subprocess
 import re
 
-p = subprocess.Popen(["/usr/bin/tree", "-ifna", "-P", "*.html", "-I", "main.html"],
+p = subprocess.Popen(["/usr/bin/tree", "-ifna", "-P", "*.html", "-I", "main.html", "--prune"],
         stdout=subprocess.PIPE)
 output = p.communicate()[0].decode()
 tree = output.split('\n')[1:-3]
