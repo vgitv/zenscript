@@ -1,0 +1,83 @@
+#!/bin/python3
+
+import subprocess
+
+p = subprocess.Popen(["/bin/find", "-mindepth", "2", "-name", "*.html"], stdout=subprocess.PIPE)
+output = p.communicate()[0].decode()
+tree = output.split('\n')[:-1]
+tree.sort()
+
+def diffSection(previousSection, section):
+    d = dict()
+    for i, elt in enumerate(section):
+        if len(previousSection) > i:
+            if previousSection[i] != section[i]:
+                d['h' + str(i+1)] = elt.replace('_', ' ')
+        else:
+            d['h' + str(i+1)] = elt.replace('_', ' ')
+    return d
+#}
+
+
+html = '<!DOCTYPE html>'
+html += '\n<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">'
+html += '\n<head>'
+html += '\n  <meta charset="utf-8" />'
+html += '\n  <meta name="generator" content="pandoc" />'
+html += '\n  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />'
+html += '\n  <title>main</title>'
+html += '\n  <style type="text/css">'
+html += '\n      code{white-space: pre-wrap;}'
+html += '\n      span.smallcaps{font-variant: small-caps;}'
+html += '\n      span.underline{text-decoration: underline;}'
+html += '\n      div.column{display: inline-block; vertical-align: top; width: 50%;}'
+html += '\n  </style>'
+html += '\n  <link rel="stylesheet" href="style01.css" />'
+html += '\n</head>'
+html += '\n<body>'
+html += '\n<h1 id="maintitle">Notes</h1>'
+
+previousSection = list()
+
+for i, path in enumerate(tree):
+    # pour la section, on enlève le dernier dossier et le fichier (et le ./ au début)
+    elt = path.split('/')
+    section = elt[1:-2]
+    item = elt[-2].replace('_', ' ')
+    print('---------------------')
+    print('section :', section)
+    print('item    :', item)
+    print('path    :', path)
+
+    if section == previousSection:
+        print('INFO: same section, h should be empty')
+    else:
+        print('INFO: new section, h shows the diff')
+    #}
+
+    h = diffSection(previousSection, section)
+    print('h:', h)
+
+    # avant le titre suivant, on ferme la liste à puces
+    if i > 0 and len(h) > 0:
+        html += '\n</ul>'
+
+    # écriture des titres
+    for key in h:
+        html += '\n<{hn}>{title}</{hn}>'.format(hn=key, title=h[key])
+
+    # après le titre, on ouvre la liste à puces
+    if len(h) > 0:
+        html += '\n<ul>'
+
+    html += '\n<li><a href="{ref}">{link}</a></li>'.format(ref=path, link=item)
+
+    previousSection = section
+#}
+
+html += '\n</ul>'
+html += '\n</body>'
+html += '\n</html>'
+
+print('\n\n\n')
+print(html)
