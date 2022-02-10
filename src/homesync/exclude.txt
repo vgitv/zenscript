@@ -1,4 +1,4 @@
-.*
+.cache/
 Vidéos/
 Téléchargements/
 Radio/
