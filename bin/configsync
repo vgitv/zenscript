@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# sync configuration from ~/.bareconfig to a list of remote hosts
+# sync configuration from bareconfig to a list of remote hosts
 # You should exchange keys with all the remote hosts for better experience
 
 # user for host machine
