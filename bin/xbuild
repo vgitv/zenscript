@@ -17,6 +17,11 @@ extension="${fileName##*.}"
 # echo "fileBaseName $fileBaseName"
 # echo "extension $extension"
 
+function safeRun {
+    echo $@
+    $@
+}
+
 if [[ -e Makefile ]]; then
     echo 'Makefile'
     make
@@ -26,10 +31,11 @@ else
             echo 'Markdown file: generate html with pandoc.'
             cp "${HOME}/.opt/src/css_styles/style01.css" "${directory}"
             out="${directory}/${fileBaseName}.html"
-            pandoc \
+            safeRun pandoc \
                 -sN \
                 -V colorlinks \
                 -c 'style01.css' \
+                --highlight-style=breezeDark \
                 --metadata pagetitle="${fileBaseName}" \
                 "${filePath}" \
                 -o "${out}"
