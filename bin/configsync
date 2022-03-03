@@ -10,38 +10,27 @@ user="$1"
 hostList="$2"
 
 function safesync {
-    local filetype="$1"
-    local object="$2"
-    local dest="$3"
+    local user="$1"
+    local host="$2"
+    local object="$3"
 
-    case "${filetype}" in
-        '-d')
-            if [[ -d "${object}" ]]; then
-                echo -e "\nINFO: sync directory ${object}"
-                rsync -arvh --delete "${object}" "${dest}"
-            else
-                echo "WARNING: no ${object} to sync."
-            fi
-            ;;
-        '-f')
-            if [[ -f "${object}" ]]; then
-                echo -e "\nINFO: sync file ${object}"
-                rsync -avh "${object}" "${dest}"
-            else
-                echo "WARNING: no ${object} to sync."
-            fi
-            ;;
-        *)
-            echo 'Unknown filetype. Choose beetween d and f.'
-            exit
-            ;;
-    esac
+    local dest
+    dest=$(dirname "${object}")
+
+    if [[ -d ${object} ]]; then
+        echo -e "\nINFO: sync directory ${object} to ${user}@${host}:${dest}/"
+        rsync -arvh --delete "${object}" "${user}"@"${host}":"${dest}/"
+    elif [[ -f ${object} ]]; then
+        echo -e "\nINFO: sync file ${object} to ${user}@${host}:${dest}/"
+        rsync -avh "${object}" "${user}"@"${host}":"${dest}/"
+    else
+        echo "INFO: ${object} does not exist or is not readable."
+    fi
 }
 
 while IFS= read -r host; do
     echo -e "\n# ${host}"
-    safesync -d "${HOME}/.vim" "${user}"@"${host}":
-    safesync -d "${HOME}/.config/nvim" "${user}"@"${host}":.config/
-    safesync -f "${HOME}/.bashrc" "${user}"@"${host}":
-    safesync -f "${HOME}/.config/bash/after_bashrc.sh" "${user}"@"${host}":.config/bash/
+    safesync "$user" "$host" "$HOME/.vim"
+    safesync "$user" "$host" "$HOME/.bashrc"
+    safesync "$user" "$host" "$HOME/.config/bash/after_bashrc.sh"
 done < "${hostList}"
