@@ -78,3 +78,18 @@ h2 {
     overflow: hidden;
     background-color: #f1f1f1;
 }
+
+/* unvisited link */
+a:link {
+    color: #8282ef;
+}
+
+/* visited link */
+a:visited {
+    color: #b795d7;
+}
+
+/* mouse over link */
+a:hover {
+    color: #ffffff;
+}
