@@ -6,7 +6,8 @@ import pathlib
 
 parser = argparse.ArgumentParser(description='Main script argument parser.')
 parser.add_argument('--title', help='HTML main title.', default='Notes')
-parser.add_argument('--debug', help='Debug option', default=False)
+parser.add_argument('--debug', help='Debug option.', default=False)
+parser.add_argument('--output', help='Output HTML file.', default='main_html_summary.html')
 args = parser.parse_args()
 
 p = subprocess.Popen(["/usr/bin/find", "-mindepth", "2", "-name", "*.html"], stdout=subprocess.PIPE)
@@ -82,13 +83,13 @@ for i, path in enumerate(tree):
 #}
 
 html += '</ul>\n'
+html += '<br>\n' * 20
 html += '</body>\n'
 html += '</html>\n'
 
 print('Title:', args.title)
-main='main_html_summary.html'
 print('INFO: writing html file...')
-with open(main, 'w') as f:
+with open(args.output, 'w') as f:
     f.write(html)
 
-print('INFO: {fichier} generated.'.format(fichier=main))
+print('INFO: {fichier} generated.'.format(fichier=args.output))
