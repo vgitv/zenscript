@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 import subprocess
 import shutil
 import argparse
@@ -7,9 +6,8 @@ import pathlib
 
 parser = argparse.ArgumentParser(description='Main script argument parser.')
 parser.add_argument('--title', help='HTML main title.', default='Notes')
+parser.add_argument('--debug', help='Debug option', default=False)
 args = parser.parse_args()
-print('Title:', args.title)
-print()
 
 p = subprocess.Popen(["/usr/bin/find", "-mindepth", "2", "-name", "*.html"], stdout=subprocess.PIPE)
 output = p.communicate()[0].decode()
@@ -29,23 +27,23 @@ def diffSection(previousSection, section):
 
 shutil.copy(str(pathlib.Path.home()) + '/.local/src/css_styles/main-dark.css', '.')
 
-html = '<!DOCTYPE html>'
-html += '\n<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">'
-html += '\n<head>'
-html += '\n  <meta charset="utf-8" />'
-html += '\n  <meta name="generator" content="pandoc" />'
-html += '\n  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />'
-html += '\n  <title>main</title>'
-html += '\n  <style type="text/css">'
-html += '\n      code{white-space: pre-wrap;}'
-html += '\n      span.smallcaps{font-variant: small-caps;}'
-html += '\n      span.underline{text-decoration: underline;}'
-html += '\n      div.column{display: inline-block; vertical-align: top; width: 50%;}'
-html += '\n  </style>'
-html += '\n  <link rel="stylesheet" href="./main-dark.css" />'
-html += '\n</head>'
-html += '\n<body>'
-html += '\n<h1 id="maintitle">{title}</h1>'.format(title=args.title)
+html = '<!DOCTYPE html>\n'
+html += '<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">\n'
+html += '<head>\n'
+html += '  <meta charset="utf-8" />\n'
+html += '  <meta name="generator" content="pandoc" />\n'
+html += '  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />\n'
+html += '  <title>main</title>\n'
+html += '  <style type="text/css">\n'
+html += '      code{white-space: pre-wrap;}\n'
+html += '      span.smallcaps{font-variant: small-caps;}\n'
+html += '      span.underline{text-decoration: underline;}\n'
+html += '      div.column{display: inline-block; vertical-align: top; width: 50%;}\n'
+html += '  </style>\n'
+html += '  <link rel="stylesheet" href="./main-dark.css" />\n'
+html += '</head>\n'
+html += '<body>\n'
+html += '<h1 id="maintitle">{title}</h1>\n'.format(title=args.title)
 
 previousSection = list()
 
@@ -54,44 +52,42 @@ for i, path in enumerate(tree):
     elt = path.split('/')
     section = elt[1:-2]
     item = elt[-2].replace('_', ' ')
-    print('# tree iteration', i)
-    print('path    :', path)
-    print('section :', section)
-    print('item    :', item)
-
-    if section == previousSection:
-        print('INFO: same section than before, h should be empty:')
-    else:
-        print('INFO: new section detected, h shows the diff against previous section:')
-    #}
-
     h = diffSection(previousSection, section)
-    print('h:', h)
+
+    if args.debug:
+        print('Iteration', i)
+        print('  path    :', path)
+        print('  section :', section)
+        print('  item    :', item)
+        if section == previousSection:
+            print('  INFO: same section than before, h should be empty:')
+        else:
+            print('  INFO: new section detected, h shows the diff against previous section:')
+        print('  h:', h, '\n')
 
     # avant le titre suivant, on ferme la liste à puces
     if i > 0 and len(h) > 0:
-        html += '\n</ul>'
+        html += '</ul>\n'
 
     # écriture des titres
     for key in h:
-        html += '\n<{hn}>{title}</{hn}>'.format(hn=key, title=h[key])
+        html += '<{hn}>{title}</{hn}>\n'.format(hn=key, title=h[key])
 
     # après le titre, on ouvre la liste à puces
     if len(h) > 0:
-        html += '\n<ul>'
+        html += '<ul>\n'
 
-    html += '\n<li><a href="{ref}">{link}</a></li>'.format(ref=path, link=item)
-
+    html += '<li><a href="{ref}">{link}</a></li>\n'.format(ref=path, link=item)
     previousSection = section
-    print()
 #}
 
-html += '\n</ul>'
-html += '\n</body>'
-html += '\n</html>'
+html += '</ul>\n'
+html += '</body>\n'
+html += '</html>\n'
 
+print('Title:', args.title)
 main='main_html_summary.html'
-print('\nINFO: writing html file...')
+print('INFO: writing html file...')
 with open(main, 'w') as f:
     f.write(html)
 
