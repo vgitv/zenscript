@@ -2,6 +2,13 @@
 
 import subprocess
 import shutil
+import argparse
+
+parser = argparse.ArgumentParser(description='Main script argument parser.')
+parser.add_argument('--title', help='HTML main title.', default='Notes')
+args = parser.parse_args()
+print('Title:', args.title)
+print()
 
 p = subprocess.Popen(["/usr/bin/find", "-mindepth", "2", "-name", "*.html"], stdout=subprocess.PIPE)
 output = p.communicate()[0].decode()
@@ -39,7 +46,7 @@ html += '\n  </style>'
 html += '\n  <link rel="stylesheet" href="./main-dark.css" />'
 html += '\n</head>'
 html += '\n<body>'
-html += '\n<h1 id="maintitle">Notes</h1>'
+html += '\n<h1 id="maintitle">{title}</h1>'.format(title=args.title)
 
 previousSection = list()
 
