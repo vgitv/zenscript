@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+
+# Permet de rennomer des fichiers à l'intérieur d'un zip
+# sans extraire le fichier. Fonctionne même si l'archive
+# contient plusieurs fichier.
+
+zipFile="$1"
+oldName="$2"
+newName="$3"
+
+zipnote -w "${zipFile}" <<< "@ ${oldName}"$'\n'"@=${newName}"
