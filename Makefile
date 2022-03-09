@@ -5,14 +5,18 @@ local := ~/.local/bin ~/.local/share ~/.local/state ~/.local/src ~/.local/lib ~/
 sourcebin := $(wildcard bin/*)
 targetbin := $(subst bin/,~/.local/bin/,$(sourcebin))
 
-# css
+# src
 sourcecss := $(wildcard src/css_styles/*)
 targetcss := $(subst src/,~/.local/src/,$(sourcecss))
+
+targeteadmin := ~/.local/src/eadmin/main.tex
+
+targetsrc := $(targetcss) $(targeteadmin)
 
 # etc
 etc := ~/.local/etc/homesync/exclude
 
-install: $(local) $(targetbin) $(targetcss) $(etc)
+install: $(local) $(targetbin) $(targetsrc) $(etc)
 
 .PHONY: print
 print:
@@ -26,6 +30,8 @@ print:
 	@echo $(sourcecss)
 	@echo -e '\ntarget css:'
 	@echo $(targetcss)
+	@echo -e '\ntarget src:'
+	@echo $(targetsrc)
 
 # local arborescence
 ~/.local/bin:
@@ -55,6 +61,12 @@ print:
 	cp $(word 2,$^) ~/.local/src/css_styles/ && chmod 640 $@
 
 ~/.local/src/css_styles:
+	mkdir $@
+
+~/.local/src/eadmin/%: ~/.local/src/eadmin src/eadmin/%
+	cp $(word 2,$^) ~/.local/src/eadmin/ && chmod 640 $@
+
+~/.local/src/eadmin:
 	mkdir $@
 
 # etc

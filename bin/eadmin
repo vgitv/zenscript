@@ -7,7 +7,7 @@ set -euo pipefail
 # You must have a "recto.jpg" and a "verso.jpg" in your current directory
 # Works also for png pictures
 
-latexfile="${HOME}/.opt/src/eadmin/main.tex"
+latexfile="${HOME}/.local/src/eadmin/main.tex"
 
-pdflatex -output-directory /tmp -file-line-error -halt-on-error ${latexfile}
+pdflatex -output-directory /tmp -file-line-error -halt-on-error "${latexfile}"
 cp /tmp/main.pdf .
