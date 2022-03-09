@@ -14,9 +14,9 @@ targeteadmin := ~/.local/src/eadmin/main.tex
 targetsrc := $(targetcss) $(targeteadmin)
 
 # etc
-etc := ~/.local/etc/homesync/exclude
+targetetc := ~/.local/etc/homesync/exclude
 
-install: $(local) $(targetbin) $(targetsrc) $(etc)
+install: $(local) $(targetbin) $(targetsrc) $(targetetc)
 
 .PHONY: print
 print:
@@ -79,7 +79,8 @@ print:
 # remove all file targets but not directories
 uninstall:
 	rm -f $(targetbin)
-	rm -f $(targetcss)
+	rm -f $(targetsrc)
+	rm -f $(targetetc)
 
 .PHONY: coffee
 coffee:

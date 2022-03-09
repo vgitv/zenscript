@@ -1,6 +1,21 @@
 # Scripts système
 
+## Arborescence
+
 * `bin/` : exécutables
+* `etc/` : configurations
 * `lib/` : librairies
-* `log/` : fichiers de log
-* `src/` : code source
+* `src/` : sources
+
+## Installation
+
+```bash
+# installation
+make
+
+# alternativement
+make install
+
+# désinstallation
+make uninstall
+```
