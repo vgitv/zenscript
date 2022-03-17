@@ -50,7 +50,7 @@ def main():
     html += '  <meta charset="utf-8" />\n'
     html += '  <meta name="generator" content="pandoc" />\n'
     html += '  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />\n'
-    html += '  <title>main</title>\n'
+    html +=f'  <title>{args.title}</title>\n'
     html += '  <style type="text/css">\n'
     html += '      code{white-space: pre-wrap;}\n'
     html += '      span.smallcaps{font-variant: small-caps;}\n'
@@ -60,7 +60,7 @@ def main():
     html += '  <link rel="stylesheet" href="./main-dark.css" />\n'
     html += '</head>\n'
     html += '<body>\n'
-    html += '<h1 id="maintitle">{title}</h1>\n'.format(title=args.title)
+    html +=f'<h1 id="maintitle">{args.title}</h1>\n'
     
     previousSection = list()
     
