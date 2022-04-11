@@ -10,11 +10,5 @@ set -euo pipefail
 # Exemple : tous les header des fichiers du dossier courant
 #     header ',' *
 
-delim="$1"
-shift
-
-for fichier in "$@"; do
-    echo "-- ${fichier} -----"
-    head -n 1 "${fichier}" | sed "s/${delim}/\n/g"
-    echo
-done
+delim="$1" && shift
+head -n 1 "$@" | sed "s/${delim}/\n/g"
