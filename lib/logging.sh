@@ -2,7 +2,7 @@
 
 export NC="\033[0m"
 
-export debug="\033[1;30m"
+export debug="\033[1;37m"
 export info="\033[1;32m"
 export warn="\033[1;33m"
 export error="\033[1;31m"
