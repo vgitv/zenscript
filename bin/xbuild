@@ -5,6 +5,8 @@ set -euo pipefail
 # si un Makefile est trouvé dans le dosser courant, alors il est exécuté,
 # sinon, règle spécifique en fonction de l'extension du fichier.
 
+dryrun='n'
+[[ $1 = '--dryrun' ]] && dryrun=y && shift
 filePath="$(realpath "$1")"
 directory="$(dirname "${filePath}")"
 fileName="$(basename "${filePath}")"
@@ -21,8 +23,15 @@ item="${item// /_}"
 # echo "extension $extension"
 
 function safeRun {
-    echo $@
-    $@
+    [[ $1 =~ =y ]] && shift && echo "$*" && exit
+    shift
+    if "$@"; then
+        echo 'Done.'
+    else
+        echo "$*"
+        echo 'ERROR'
+        exit 1
+    fi
 }
 
 if [[ -e Makefile ]]; then
@@ -31,10 +40,11 @@ if [[ -e Makefile ]]; then
 else
     case "${extension}" in
         'md')
-            echo 'Markdown file: generate html with pandoc.'
+            echo 'Markdown file detected.'
+            echo 'Generating HTML file with pandoc...'
             cp "${HOME}/.local/src/css_styles/main-dark.css" "${directory}"
             out="${directory}/${fileBaseName}.html"
-            safeRun pandoc \
+            safeRun --dryrun="${dryrun}" pandoc \
                 -sN \
                 -V colorlinks \
                 -c 'main-dark.css' \
@@ -42,7 +52,7 @@ else
                 --metadata pagetitle="${item}" \
                 "${filePath}" \
                 -o "${out}"
-            echo "${out} generated."
+                echo "${out/$(pwd)\//} generated."
             ;;
         *)
             echo "Unknown extension ${extension}."
