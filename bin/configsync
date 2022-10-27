@@ -4,6 +4,10 @@ set -euo pipefail
 # sync configuration from bareconfig to a list of remote hosts
 # You should exchange keys with all the remote hosts for better experience
 
+here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# shellcheck source=/dev/null
+source "$here/../lib/logging.sh"
+
 # user for host machine
 user="$1"
 # file with one host by line
@@ -18,18 +22,19 @@ function safesync {
     dest=$(dirname "${object}" | sed "s;$(whoami);${user};g")
 
     if [[ -d ${object} ]]; then
-        echo -e "\nINFO: sync directory ${object} to ${user}@${host}:${dest}/"
-        rsync -arvh --delete "${object}" "${user}@${host}:${dest}/"
+        log debug "Sync directory ${object} to ${user}@${host}:${dest}/"
+        rsync -arh --delete "${object}" "${user}@${host}:${dest}/"
     elif [[ -f ${object} ]]; then
-        echo -e "\nINFO: sync file ${object} to ${user}@${host}:${dest}/"
-        rsync -avh "${object}" "${user}@${host}:${dest}/"
+        log debug "Sync file ${object} to ${user}@${host}:${dest}/"
+        rsync -ah "${object}" "${user}@${host}:${dest}/"
     else
-        echo "INFO: ${object} does not exist or is not readable."
+        log warn "${object} does not exist or is not readable."
     fi
 }
 
 while IFS= read -r host; do
-    echo -e "\n# ${host}"
+    echo
+    log info "Config sync to ${host}"
     safesync "$user" "$host" "$HOME/.profile"
     safesync "$user" "$host" "$HOME/.bash_profile"
     safesync "$user" "$host" "$HOME/.vim"
