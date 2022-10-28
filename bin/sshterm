@@ -13,5 +13,5 @@ set -euo pipefail
 config="${HOME}/.ssh/config"
 
 host="$(grep -i Hostname "${config}" | awk '{ print $2 }' | dmenu -l 50)"
-user="$(grep -A 1 u3antu534 "${config}" | grep -i User | awk '{ print $2 }')"
-st ssh "${user}"@"${host}"
+user="$(grep -A 1 "${host}" "${config}" | grep -i User | awk '{ print $2 }')"
+konsole -e ssh "${user}"@"${host}"
