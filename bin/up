@@ -18,7 +18,7 @@ function ubuntu_up {
 
 function manjaro_up {
     set -x
-    sudo pacman -Syu --noprogressbar --noconfirm
+    sudo pacman -Syyu --noprogressbar --noconfirm
     set +x
 }
 
