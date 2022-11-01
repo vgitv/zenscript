@@ -1,10 +1,29 @@
 #!/bin/bash
 set -euo pipefail
 
+# scan disk using clamav
+
+here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# shellcheck source=/dev/null
+source "$here/../lib/logging.sh"
+
+# default: scan root
+root="${1:-/}"
+
 log="${XDG_STATE_HOME:-$HOME/.local/state}/clamscan.log"
 
-echo '# update clamav database'
+log info 'Update clamav database'
 sudo freshclam
 
-echo '# scan all disk'
-sudo clamscan --exclude-dir="^/sys" -r / > >(tee "${log}") 2>&1
+log info "Scanning ${root} directory..."
+# --max-filesize=4000M --max-scansize=4000M
+sudo clamscan \
+    --log="$log" \
+    --infected \
+    --recursive \
+    --exclude-dir="^/sys|^/dev" \
+    "$root"
+
+sudo chmod 644 "$log"
+
+log info "Scan done, log saved in ${log}"
