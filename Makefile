@@ -1,3 +1,6 @@
+# use bash
+SHELL := /bin/bash
+
 # target directories
 local := ~/.local/bin ~/.local/share ~/.local/state ~/.local/src ~/.local/lib ~/.local/etc
 
@@ -90,6 +93,10 @@ uninstall:
 	rm -f $(targetlib)
 	rm -f $(targetsrc)
 	rm -f $(targetetc)
+
+.PHONY: check
+check:
+	for f in bin/*; do if head -n 1 $$f | grep -q bash; then shellcheck $$f; fi; done
 
 .PHONY: coffee
 coffee:
