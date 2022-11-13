@@ -6,12 +6,12 @@ set -euo pipefail
 # scast screencast.avi
 
 output_file=${1}
-screen_resolution=`xdpyinfo | awk '/dimensions:/ { print $2 }'`
+screen_resolution=$(xdpyinfo | awk '/dimensions:/ { print $2 }')
 
 ffmpeg \
     -f x11grab \
-    -s ${screen_resolution} \
+    -s "${screen_resolution}" \
     -r 25 \
     -i :0.0 \
     -q:v 2 \
-    ${output_file}
+    "${output_file}"

@@ -11,7 +11,7 @@ set -euo pipefail
 
 location="$(realpath "$1")"
 
-for archive in ${location}/*.zip; do
+for archive in "${location}"/*.zip; do
     if zipinfo "${archive}" > /dev/null 2>&1; then
         true
     else

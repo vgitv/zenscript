@@ -11,11 +11,12 @@ while getopts 'p:s:f:o:' flag; do
         s) suffix="${OPTARG}" ;;
         f) pwdFile="${OPTARG}" ;;
         o) outFile="${OPTARG}" ;;
+        *) echo 'Invalid flag'; exit 1 ;;
     esac
 done
 
 while IFS= read -r line; do
-    key="${prefix}$(echo ${line} | cut -d '=' -f 1)${suffix}"
-    val="$(echo ${line} | cut -d '=' -f 2- | base64 -d)"
+    key="${prefix}$(echo "${line}" | cut -d '=' -f 1)${suffix}"
+    val="$(echo "${line}" | cut -d '=' -f 2- | base64 -d)"
     sed -i "s/${key}/${val}/g" "${outFile}"
 done < "${pwdFile}"
