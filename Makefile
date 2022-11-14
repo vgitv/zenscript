@@ -96,7 +96,7 @@ uninstall:
 
 .PHONY: check
 check:
-	for f in bin/*; do if head -n 1 $$f | grep -q bash; then shellcheck $$f; fi; done
+	for f in bin/*; do if head -n 1 $$f | grep -q bash; then shellcheck $$f && echo "$$f OK"; fi; done
 
 .PHONY: coffee
 coffee:
