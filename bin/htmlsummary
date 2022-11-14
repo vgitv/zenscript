@@ -42,7 +42,7 @@ def main():
     # find all html files in current directory and return the list of it
     tree = findHtml()
     
-    shutil.copy(str(pathlib.Path.home()) + '/.local/src/css_styles/main-dark.css', '.')
+    shutil.copy(str(pathlib.Path.home()) + '/.local/src/css_styles/dark-theme.css', '.')
     
     html = '<!DOCTYPE html>\n'
     html += '<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">\n'
@@ -57,7 +57,7 @@ def main():
     html += '      span.underline{text-decoration: underline;}\n'
     html += '      div.column{display: inline-block; vertical-align: top; width: 50%;}\n'
     html += '  </style>\n'
-    html += '  <link rel="stylesheet" href="./main-dark.css" />\n'
+    html += '  <link rel="stylesheet" href="./dark-theme.css" />\n'
     html += '</head>\n'
     html += '<body>\n'
     html +=f'<h1 id="maintitle">{args.title}</h1>\n'
