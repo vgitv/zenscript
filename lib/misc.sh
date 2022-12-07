@@ -1,5 +1,4 @@
 #!/bin/bash
-set -euo pipefail
 
 function title {
     col=155
@@ -26,4 +25,22 @@ function try {
         fi
     done
     echo
+}
+
+
+function autoretry {
+    local nbtry="$1"
+    shift
+    local cpt=0
+    while [[ $cpt -lt $nbtry ]]; do
+        echo "Try n°${cpt}"
+        if "$@"; then
+            echo 'Success!'
+            return
+        fi
+        cpt=$((cpt+1))
+        sleep 1
+    done
+    echo "ERROR: ${nbtry} unsuccessful tries of command '$*'"
+    exit 1
 }
