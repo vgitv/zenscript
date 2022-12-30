@@ -14,7 +14,8 @@ else
     exit 1
 fi
 
-rsync -arvh --delete "${database}" "${dest}"
+# time window in order to handle ext4 to fat filesystem
+rsync -arvh --modify-window=1 --delete "${database}" "${dest}"
 
 echo -e "\nSaved in ${dest}"
 echo 'WELL DONE !!'
