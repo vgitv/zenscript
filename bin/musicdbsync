@@ -1,37 +1,20 @@
 #!/bin/bash
 set -euo pipefail
 
-dd='USB'
+# default value either /media or /run/media
+dest="${1:-/run/media/${USER}/USB/MUSIC}"
 
-tosync="${HOME}/Musique/_database_"
+# source directory
+database="${HOME}/Musique/_database_"
 
-# default destination directory
-dest='MUSIC'
-
-# TRAITEMENT PARAMÈTRE
-if [ $# -eq 0 ]; then
-    # si pas d'arguments nom par défaut
-    backupspath="/media/${USER}/${dd}/${dest}"
+if [[ -d $dest ]]; then
+    echo "Dest dir: ${dest}"
 else
-    # sinon le nom du dossier est l'argument
-    backupspath="$1"
+    echo "Dest dir do not exists: ${dest}"
+    exit 1
 fi
 
+rsync -arvh --delete "${database}" "${dest}"
 
-
-# COMMANDE PRINCIPALE
-# -a : conserve toutes les infos (droits, date modif...)
-# -r : sauvegarde récursivement (sous dossiers etc)
-# -v : mode verbeux
-# -h : human readable
-# --exclude-from : dossier(s) ignorés
-# --include-from : dossier(s) conservés malgré le exclude
-# --delete       : efface sur backup les fichiers disparus
-cd
-rsync -arvh --delete "${tosync}" "${backupspath}"
-
-
-
-# FIN PROGRAMME
-echo -e "\nSaved in ${backupspath}"
+echo -e "\nSaved in ${dest}"
 echo 'WELL DONE !!'
