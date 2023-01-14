@@ -1,7 +1,42 @@
 #!/bin/bash
 set -euo pipefail
+IFS=$'\n\t'
 
-# tag --album='album title' --artist='artist name' --year='2023' --genre='Rock' testdir titles.txt
+here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# shellcheck source=/dev/null
+source "$here/../lib/logging.sh"
+
+[[ $# -eq 0 ]] && cat << EOF && exit 0
+NAME
+    tag
+
+SYNOPSIS
+    tag [OPTIONS] directory titles_list_file
+
+DESCRIPTION
+    Set tag (metadata) to all flac files in a directory. Flac files must be
+    ordered allong with titles tracks.
+
+OPTIONS
+    --album=
+        Album name
+
+    --artist=
+        Artist name
+
+    --year=
+        Album date
+
+    --genre=
+        Album genre
+
+EXAMPLES
+    # named args can be used
+    tag --album='album title' --artist='artist name' --year='2023' --genre='Rock' testdir/ titles.txt
+    
+    # if not they will be read from stdin
+    tag testdir/ titles.txt
+EOF
 
 function sanitize {
     echo "${1,,}" | sed -E \
@@ -48,26 +83,12 @@ while [[ $1 =~ ^-- ]]; do
     esac
 done
 
+# target directory
 location=$(realpath "$1")
 # file with list of track titles
 titlesFile="$2"
 
-
-# TITLE=
-# ARTIST=
-# ALBUMARTIST=
-# ALBUM=
-# DATE=
-# TRACKNUMBER=
-# TRACKTOTAL=
-# GENRE=
-
-# Ask for mutual tags:
-#     Artist
-#     Album Artist
-#     Album
-#     Year
-#     Genre
+# Ask for mutual tags if not defined
 [ -z "${album:-}" ] && echo 'Enter the album name.' && read -r album
 [ -z "${artist:-}" ] && echo 'Enter the artist name.' && read -r artist
 [ -z "${year:-}" ] && echo 'Enter the year.' && read -r year
@@ -75,9 +96,19 @@ titlesFile="$2"
 
 # Set track number
 tracktotal=$(wc -l < "$titlesFile")
+flactotal=$(find "$location" -type f -name "*.flac" | wc -l)
 
+if [[ ${tracktotal} -ne ${flactotal} ]]; then
+    error "Number of flac different to number of titles"
+fi
+
+log info 'Clean metadata'
+echo 'remove tags'
 metaflac --remove-all-tags "$location"/*.flac
+echo 'remove pictures'
+metaflac --remove-all "$location"/*.flac
 
+log info 'Set shared tags'
 metaflac --set-tag=ARTIST="$artist" "$location"/*.flac
 metaflac --set-tag=ALBUMARTIST="$artist" "$location"/*.flac
 metaflac --set-tag=ALBUM="$album" "$location"/*.flac
@@ -85,19 +116,25 @@ metaflac --set-tag=DATE="$year" "$location"/*.flac
 metaflac --set-tag=GENRE="$genre" "$location"/*.flac
 metaflac --set-tag=TRACKTOTAL="$tracktotal" "$location"/*.flac
 
+log info 'Set track-specific tag and sanitize filename'
 mapfile -t titles < "$titlesFile"
+tmp=$(mktemp)
+ls -1 "$location"/*.flac > "$tmp"
+cpt=0
 
-cpt=1
+while IFS= read -r flac; do
+    ntrack="$(printf "%02d" "$((cpt+1))")"
+    echo "${ntrack} - ${titles[${cpt}]}"
+    metaflac --set-tag=TITLE="${titles[${cpt}]}" "$flac"
+    title="$(sanitize "${titles[${cpt}]}")"
+    dest="${location}/${ntrack}_${title}.flac"
+    [[ ${flac} != "${dest}" ]] && mv -f "$flac" "$dest"
+    cpt=$((cpt+1))
+done < "$tmp"
 
-ls "$location"/*.flac | wc -l
-
-find "$location" -type f -name "*.flac" -exec bash -c '
-    cpt="$1"
-    flac="$2"
-    echo -n "$cpt ";
-    echo "$flac";
-    cpt=$((cpt+1))' shell $cpt {} \;
-
+# album cover is the first picture found (png or jpg or jpeg)
+cover=$(find "$location" -name "*.png" -or -name "*.jp*g" | head -n 1)
+log info "Album cover: ${cover}"
 # Attach picture
 # if [[ -r "$location"/cover.png ]]; then
 #     metaflac --import-picture-from="$location"/cover.png "$location"/*.flac
