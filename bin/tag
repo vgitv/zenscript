@@ -103,12 +103,18 @@ if [[ ${tracktotal} -ne ${flactotal} ]]; then
 fi
 
 log info 'Clean metadata'
-echo 'remove tags'
+echo 'Remove tags'
 metaflac --remove-all-tags "$location"/*.flac
-echo 'remove pictures'
+echo 'Remove pictures'
 metaflac --remove-all "$location"/*.flac
 
 log info 'Set shared tags'
+echo "ARTIST: ${artist}"
+echo "ALBUMARTIST: ${artist}"
+echo "ALBUM: ${album}"
+echo "DATE: ${year}"
+echo "GENRE: ${genre}"
+echo "TRACKTOTAL: ${tracktotal}"
 metaflac --set-tag=ARTIST="$artist" "$location"/*.flac
 metaflac --set-tag=ALBUMARTIST="$artist" "$location"/*.flac
 metaflac --set-tag=ALBUM="$album" "$location"/*.flac
@@ -126,16 +132,17 @@ while IFS= read -r flac; do
     ntrack="$(printf "%02d" "$((cpt+1))")"
     echo "${ntrack} - ${titles[${cpt}]}"
     metaflac --set-tag=TITLE="${titles[${cpt}]}" "$flac"
+    metaflac --set-tag=TRACKNUMBER="$ntrack" "$flac"
     title="$(sanitize "${titles[${cpt}]}")"
     dest="${location}/${ntrack}_${title}.flac"
     [[ ${flac} != "${dest}" ]] && mv -f "$flac" "$dest"
     cpt=$((cpt+1))
 done < "$tmp"
 
+log info 'Set cover picture'
 # album cover is the first picture found (png or jpg or jpeg)
 cover=$(find "$location" -name "*.png" -or -name "*.jp*g" | head -n 1)
-log info "Album cover: ${cover}"
-# Attach picture
-# if [[ -r "$location"/cover.png ]]; then
-#     metaflac --import-picture-from="$location"/cover.png "$location"/*.flac
-# fi
+echo "Cover: ${cover}"
+[[ -z ${cover} ]] || metaflac --import-picture-from="$cover" "$location"/*.flac
+
+log info 'All done!'
