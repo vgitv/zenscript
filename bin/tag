@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+# tag --album='album title' --artist='artist name' --year='2023' --genre='Rock' testdir titles.txt
+
 function sanitize {
     echo "${1,,}" | sed -E \
         -e 's/Œ/OE/g' \
@@ -18,6 +20,85 @@ function sanitize {
         -e 's/(Ú|Ù|Ü|Û)/U/g' \
         -e 's/(ú|ù|ü|û)/u/g' \
         -e 's/\s+/-/g' \
-        -e "s/[!\.\?\*']/-/g"
+        -e "s/[!\.\?\*':\(\)]/-/g" \
+        -e 's/-+/-/g'
 }
 
+while [[ $1 =~ ^-- ]]; do
+    case $1 in
+        --album=*)
+            album="${1/--album=}"
+            shift
+            ;;
+        --artist=*)
+            artist="${1/--artist=}"
+            shift
+            ;;
+        --year=*)
+            year="${1/--year=}"
+            shift
+            ;;
+        --genre=*)
+            genre="${1/--genre=}"
+            shift
+            ;;
+        *)
+            echo "Invalid option $1"
+            ;;
+    esac
+done
+
+location=$(realpath "$1")
+# file with list of track titles
+titlesFile="$2"
+
+
+# TITLE=
+# ARTIST=
+# ALBUMARTIST=
+# ALBUM=
+# DATE=
+# TRACKNUMBER=
+# TRACKTOTAL=
+# GENRE=
+
+# Ask for mutual tags:
+#     Artist
+#     Album Artist
+#     Album
+#     Year
+#     Genre
+[ -z "${album:-}" ] && echo 'Enter the album name.' && read -r album
+[ -z "${artist:-}" ] && echo 'Enter the artist name.' && read -r artist
+[ -z "${year:-}" ] && echo 'Enter the year.' && read -r year
+[ -z "${genre:-}" ] && echo 'Enter the genre.' && read -r genre
+
+# Set track number
+tracktotal=$(wc -l < "$titlesFile")
+
+metaflac --remove-all-tags "$location"/*.flac
+
+metaflac --set-tag=ARTIST="$artist" "$location"/*.flac
+metaflac --set-tag=ALBUMARTIST="$artist" "$location"/*.flac
+metaflac --set-tag=ALBUM="$album" "$location"/*.flac
+metaflac --set-tag=DATE="$year" "$location"/*.flac
+metaflac --set-tag=GENRE="$genre" "$location"/*.flac
+metaflac --set-tag=TRACKTOTAL="$tracktotal" "$location"/*.flac
+
+mapfile -t titles < "$titlesFile"
+
+cpt=1
+
+ls "$location"/*.flac | wc -l
+
+find "$location" -type f -name "*.flac" -exec bash -c '
+    cpt="$1"
+    flac="$2"
+    echo -n "$cpt ";
+    echo "$flac";
+    cpt=$((cpt+1))' shell $cpt {} \;
+
+# Attach picture
+# if [[ -r "$location"/cover.png ]]; then
+#     metaflac --import-picture-from="$location"/cover.png "$location"/*.flac
+# fi
