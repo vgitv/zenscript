@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# shellcheck source=/dev/null
+source "$here/../lib/string.sh"
+
+location=$(realpath "$1")
+
+while IFS= read -r -d '' filepath; do
+    dir=$(dirname "$filepath")
+    filename=$(basename "$filepath")
+    base="${filename%.*}"
+    ext="${filename##*.}"
+    target="$(sanitize "$base").${ext}"
+    if [[ ${target} != "$filename" ]]; then
+        mv -v "${dir}/${filename}" "${dir}/${target}"
+    fi
+done < <(find "$location" -type f -print0)

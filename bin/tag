@@ -5,6 +5,8 @@ IFS=$'\n\t'
 here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # shellcheck source=/dev/null
 source "$here/../lib/logging.sh"
+# shellcheck source=/dev/null
+source "$here/../lib/string.sh"
 
 [[ $# -eq 0 ]] && cat << EOF && exit 0
 NAME
@@ -37,21 +39,6 @@ EXAMPLES
     # if not they will be read from stdin
     tag testdir/ titles.txt
 EOF
-
-function sanitize {
-    # lower case, ascii compatible
-    echo "${1,,}" | sed -E \
-        -e 's/œ/oe/g' \
-        -e 's/ç/c/g' \
-        -e 's/[áàäâ]/a/g' \
-        -e 's/[éèëê]/e/g' \
-        -e 's/[íìïî]/i/g' \
-        -e 's/[óòöô]/o/g' \
-        -e 's/[úùüû]/u/g' \
-        -e 's/\s+/-/g' \
-        -e 's/[^a-z]/-/g' \
-        -e 's/-+/-/g'
-}
 
 while [[ $1 =~ ^-- ]]; do
     case $1 in
