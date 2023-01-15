@@ -142,7 +142,12 @@ done < "$tmp"
 log info 'Set cover picture'
 # album cover is the first picture found (png or jpg or jpeg)
 cover=$(find "$location" -name "*.png" -or -name "*.jp*g" | head -n 1)
-echo "Cover: ${cover}"
-[[ -z ${cover} ]] || metaflac --import-picture-from="$cover" "$location"/*.flac
+if [[ -z ${cover} ]]; then
+    echo "No cover found in ${location}"
+else
+    echo "Cover: ${cover}"
+    metaflac --import-picture-from="$cover" "$location"/*.flac
+fi
 
+rm "$tmp"
 log info 'All done!'
