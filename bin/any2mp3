@@ -1,0 +1,40 @@
+#!/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
+
+here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# shellcheck source=/dev/null
+source "$here/../lib/logging.sh"
+
+format='flac'
+if [[ $1 =~ ^--format= ]]; then
+    format="${1/--format=/}"
+    shift
+fi
+
+function convert2mp3 {
+    local format="$1"
+    local src="$2"
+    local target="$3"
+
+    local filename
+
+    filename="$(basename "$src")"
+    output="${filename//.${format}/.mp3}"
+    ffmpeg -i "$src" -fps_mode vfr "${target}/${output}"
+}
+
+export -f convert2mp3
+
+args=("$@")
+dest="${args[-1]}"
+while [[ $# -gt 1 ]]; do
+    srcdir="$1" && shift
+    if [[ ! -d "$srcdir" ]]; then
+        error "Argument ${srcdir} should be a directory!"
+    fi
+    log info "copy ${srcdir} to ${dest}"
+    target="${dest}/$(basename "${srcdir}")"
+    mkdir -p "$target"
+    find "$srcdir" -type f -name "*.${format}" -exec bash -c 'convert2mp3 $1 $2 $3' shell "${format}" {} "${target}" \;
+done
