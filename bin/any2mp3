@@ -21,7 +21,15 @@ function convert2mp3 {
 
     filename="$(basename "$src")"
     output="${filename//.${format}/.mp3}"
-    ffmpeg -i "$src" -fps_mode vfr "${target}/${output}"
+    # -fps_mode vfr : argument to avoid following warning
+    #     Frame rate very high for a muxer not efficiently supporting it.
+    #     Please consider specifying a lower framerate, a different muxer or
+    #     setting vsync/fps_mode to vfr
+    # -ar 48000 : 48 kHz
+    # -ac 2 : two audio channels
+    # -b:a 192k : 192 kbps
+    # ffmpeg -i 01_je_ne_te_vois_plus.flac -fps_mode vfr -ar 44100 -ac 2 -b:a 192k out5.mp3
+    ffmpeg -i "$src" -fps_mode vfr -ar 48000 -ac 2 -b:a 192k "${target}/${output}"
 }
 
 export -f convert2mp3
