@@ -13,14 +13,19 @@ if [[ $1 =~ ^--format= ]]; then
 fi
 
 function convert2mp3 {
-    local format="$1"
-    local src="$2"
-    local target="$3"
+    local filepath="$1"
+    local target="$2"
 
     local filename
+    local title
+    local ntrack
 
-    filename="$(basename "$src")"
-    output="${filename//.${format}/.mp3}"
+    filename="$(basename "$filepath")"
+    output="${filename%.*}.mp3"
+
+    # append track number at the title begining to force silly music players to order songs correctly
+    ntrack=$(metaflac --show-tag=TRACKNUMBER "$filepath" | awk -F '=' '{ print $2 }')
+    title="${ntrack} - $(metaflac --show-tag=TITLE "$filepath" | awk -F '=' '{ print $2 }')"
     # -fps_mode vfr : argument to avoid following warning
     #     Frame rate very high for a muxer not efficiently supporting it.
     #     Please consider specifying a lower framerate, a different muxer or
@@ -28,8 +33,7 @@ function convert2mp3 {
     # -ar 48000 : 48 kHz
     # -ac 2 : two audio channels
     # -b:a 192k : 192 kbps
-    # ffmpeg -i 01_je_ne_te_vois_plus.flac -fps_mode vfr -ar 44100 -ac 2 -b:a 192k out5.mp3
-    ffmpeg -i "$src" -fps_mode vfr -ar 48000 -ac 2 -b:a 192k "${target}/${output}"
+    ffmpeg -i "$filepath" -fps_mode vfr -ar 48000 -ac 2 -b:a 192k -metadata title="$title" "${target}/${output}"
 }
 
 export -f convert2mp3
@@ -44,5 +48,5 @@ while [[ $# -gt 1 ]]; do
     log info "copy ${srcdir} to ${dest}"
     target="${dest}/$(basename "${srcdir}")"
     mkdir -p "$target"
-    find "$srcdir" -type f -name "*.${format}" -exec bash -c 'convert2mp3 $1 $2 $3' shell "${format}" {} "${target}" \;
+    find "$srcdir" -type f -name "*.${format}" -exec bash -c 'convert2mp3 $1 $2' shell {} "${target}" \;
 done
