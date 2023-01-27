@@ -25,7 +25,7 @@ function convert2mp3 {
 
     # append track number at the title begining to force silly music players to order songs correctly
     ntrack=$(metaflac --show-tag=TRACKNUMBER "$filepath" | awk -F '=' '{ print $2 }')
-    title="${ntrack} - $(metaflac --show-tag=TITLE "$filepath" | awk -F '=' '{ print $2 }')"
+    title="${ntrack} $(metaflac --show-tag=TITLE "$filepath" | awk -F '=' '{ print $2 }')"
     # -fps_mode vfr : argument to avoid following warning
     #     Frame rate very high for a muxer not efficiently supporting it.
     #     Please consider specifying a lower framerate, a different muxer or
