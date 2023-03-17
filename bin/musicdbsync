@@ -1,0 +1,37 @@
+#!/bin/bash
+set -euo pipefail
+
+dd='USB'
+
+tosync="${HOME}/Musique/_database_"
+
+# default destination directory
+dest='MUSIC'
+
+# TRAITEMENT PARAMÈTRE
+if [ $# -eq 0 ]; then
+    # si pas d'arguments nom par défaut
+    backupspath="/media/${USER}/${dd}/${dest}"
+else
+    # sinon le nom du dossier est l'argument
+    backupspath="$1"
+fi
+
+
+
+# COMMANDE PRINCIPALE
+# -a : conserve toutes les infos (droits, date modif...)
+# -r : sauvegarde récursivement (sous dossiers etc)
+# -v : mode verbeux
+# -h : human readable
+# --exclude-from : dossier(s) ignorés
+# --include-from : dossier(s) conservés malgré le exclude
+# --delete       : efface sur backup les fichiers disparus
+cd
+rsync -arvh --delete "${tosync}" "${backupspath}"
+
+
+
+# FIN PROGRAMME
+echo -e "\nSaved in ${backupspath}"
+echo 'WELL DONE !!'
