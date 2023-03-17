@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+
+archive="$(realpath $1)"
+extension="${archive##*.}"
+
+case "${extension}" in
+    'gz')
+        tar -zxvf "${archive}"
+        ;;
+    'bz2')
+        tar -jxvf "${archive}"
+        ;;
+    'xz')
+        tar -xvf "${archive}"
+        ;;
+    'zip')
+        unzip "${archive}"
+        ;;
+    'rar')
+        unrar e "${archive}"
+        ;;
+    *)
+        echo "Extension ${extension} inconnue."
+        ;;
+esac
