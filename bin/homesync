@@ -16,7 +16,6 @@ set -euo pipefail
 #
 # DÉTAIL DU PROGRAMME :
 # Sauvegarde les éléments du home SAUF ceux listés dans ./exclude.txt
-# Ne sauvegarde pas les éléments de ./exclude.txt SAUF ceux listés dans ./include.txt
 
 
 
