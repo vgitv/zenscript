@@ -6,7 +6,7 @@
 method="${1:-https}"
 
 function config {
-    /usr/bin/git --git-dir="${BARECONFIG:-$HOME/.local/share/bareconfig}" --work-tree="$HOME" $@
+    /usr/bin/git --git-dir="${BARECONFIG:-$HOME/.local/share/bareconfig}" --work-tree="$HOME" "$@"
 }
 
 function complexMove {
