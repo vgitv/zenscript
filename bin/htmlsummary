@@ -7,6 +7,10 @@ output = p.communicate()[0].decode()
 tree = output.split('\n')[:-1]
 tree.sort()
 
+
+p = subprocess.Popen(["whoami"], stdout=subprocess.PIPE)
+user = p.communicate()[0].decode()
+
 def diffSection(previousSection, section):
     d = dict()
     for i, elt in enumerate(section):
@@ -32,7 +36,7 @@ html += '\n      span.smallcaps{font-variant: small-caps;}'
 html += '\n      span.underline{text-decoration: underline;}'
 html += '\n      div.column{display: inline-block; vertical-align: top; width: 50%;}'
 html += '\n  </style>'
-html += '\n  <link rel="stylesheet" href="style01.css" />'
+html += '\n  <link rel="stylesheet" href="/home/{u}/.opt/src/css_styles/style01.css" />'.format(u=user)
 html += '\n</head>'
 html += '\n<body>'
 html += '\n<h1 id="maintitle">Notes</h1>'
@@ -44,15 +48,15 @@ for i, path in enumerate(tree):
     elt = path.split('/')
     section = elt[1:-2]
     item = elt[-2].replace('_', ' ')
-    print('---------------------')
+    print('# tree iteration', i)
+    print('path    :', path)
     print('section :', section)
     print('item    :', item)
-    print('path    :', path)
 
     if section == previousSection:
-        print('INFO: same section, h should be empty')
+        print('INFO: same section than before, h should be empty:')
     else:
-        print('INFO: new section, h shows the diff')
+        print('INFO: new section detected, h shows the diff against previous section:')
     #}
 
     h = diffSection(previousSection, section)
@@ -73,11 +77,16 @@ for i, path in enumerate(tree):
     html += '\n<li><a href="{ref}">{link}</a></li>'.format(ref=path, link=item)
 
     previousSection = section
+    print()
 #}
 
 html += '\n</ul>'
 html += '\n</body>'
 html += '\n</html>'
 
-print('\n\n\n')
-print(html)
+main='main_html_summary.html'
+print('\nINFO: writing html file...')
+with open(main, 'w') as f:
+    f.write(html)
+
+print('INFO: {fichier} generated.'.format(fichier=main))
