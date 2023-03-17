@@ -2,7 +2,8 @@
 
 from Pret import *
 
-testPret = Pret(300000, 0.02, 15)
-testPret.build()
-testPret.graph2()
+testPret = Pret(300000, 0.02, 25)
 
+testPret.build()
+print(testPret)
+testPret.graph2()
