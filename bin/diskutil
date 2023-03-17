@@ -15,7 +15,7 @@ function listPart {
 case "${flag}" in
     '-m')
         label="$(listPart | awk -F '[ ]' '{ if ($5=="") print $2 " (" $4 ": " $3 ")" }' | dmenu -i -p 'Mount device')"
-        device="$(echo ${label} | awk '{ print $1 }')"
+        device="$(echo "${label}" | awk '{ print $1 }')"
         message="$(udisksctl mount -b "${device}")"
         notify-send -t 5000 "${message}"
         ;;
@@ -23,7 +23,7 @@ case "${flag}" in
         label="$(listPart | awk -F '[ ]' '{ if ($5!="") print $2 " (" $4 ": " $3 ")" }' | dmenu -i -p 'Eject device')"
         answer="$(echo -e 'Yes\nNo' | dmenu -i -p "Eject device ${label} ?")"
         [[ "${answer}" != 'Yes' ]] && notify-send -u critical -t 5000 "Attention, périphérique ${label} non démonté." && exit 0
-        device="$(echo ${label} | awk '{ print $1 }')"
+        device="$(echo "${label}" | awk '{ print $1 }')"
         if udisksctl unmount -b "${device}" && udisksctl power-off -b "${device}"; then
             notify-send -t 5000 "Le périphérique ${label} peut être ejecté en toute sécurité."
         else
