@@ -11,6 +11,9 @@ class Pret(object):
         # taux d'intérêts mensuel (taux annuel / 12)
         self.m_t = T / 12
 
+        # nombre d'années
+        self.m_duree = duree
+
         # nombre de mensualités
         self.m_n = duree * 12
 
@@ -100,12 +103,54 @@ class Pret(object):
         print('sum int')
         print(np.sum(self.m_partInteret))
 
-        # ind = np.arange(self.m_n)    # the x locations for the groups
-        # width = 0.35       # the width of the bars: can also be len(x) sequence
+        ind = np.arange(self.m_n + 1)    # the x locations for the groups
+        print(np.shape(ind))
+        print(np.shape(self.m_partInteret))
 
-        # p1 = plt.bar(ind, self.m_partInteret, width)
-        # p2 = plt.bar(ind, self.m_partCapital, width, bottom=self.m_partInteret)
+        width = 0.35       # the width of the bars: can also be len(x) sequence
 
-        # plt.show()
+        p1 = plt.bar(ind, self.m_partInteret, width, color='r')
+        p2 = plt.bar(ind, self.m_partCapital, width, bottom=self.m_partInteret, color='g')
+
+        plt.show()
+    #}
+
+    def graph2(self):
+
+        print('int')
+        print(self.m_partInteret)
+        print('cap')
+        print(self.m_partCapital)
+        print('int + cap')
+        print(self.m_partInteret + self.m_partCapital)
+        print('sum cap')
+        print(np.sum(self.m_partCapital))
+        print('sum int')
+        print(np.sum(self.m_partInteret))
+
+        partInteretAnnee = np.repeat(0.0, self.m_duree)
+        partCapitalAnnee = np.repeat(0.0, self.m_duree)
+
+        ind = np.arange(1, self.m_duree + 1)    # the x locations for the groups
+        print(np.shape(ind))
+        print(np.shape(partInteretAnnee))
+
+        for i in range(self.m_duree):
+            print(i, "   ", 12*i+1, ':', 12*(i+1)+1, '|', self.m_partInteret[12*i+1:12*(i+1)+1])
+            partInteretAnnee[i] = sum(self.m_partInteret[12*i+1:12*(i+1)+1])
+            partCapitalAnnee[i] = sum(self.m_partCapital[12*i+1:12*(i+1)+1])
+        #}
+
+        p1 = plt.bar(ind, partInteretAnnee, color='r')
+        p2 = plt.bar(ind, partCapitalAnnee, bottom=partInteretAnnee, color='g')
+
+        plt.ylabel('Montant')
+        plt.xlabel('Années')
+        plt.title('Prix achat : ' + str(self.m_capital) + '\nTotal intérets : ' + str(np.sum(self.m_partInteret)) + '\nMensualitées : ' + str(self.m_mens))
+        # plt.xticks(ind, ('G1', 'G2', 'G3', 'G4', 'G5'))
+        # plt.yticks(np.arange(0, 81, 10))
+        # plt.legend((p1[0], p2[0]), ('Men', 'Women'))
+
+        plt.show()
     #}
 #}
