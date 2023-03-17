@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+
+# Permet de challenger une clef sur un fichier de données, ie. de déterminer si pour une clef
+# fixée le fichier ne présente pas de doublons.
+#
+# Arguments
+#     dataFile : fichier csv de donnée
+#     delim    : séparateur de la donnée CSV
+#     $@       : champs constituant la clef
+#
+# Exemple : recherche les doublons sur la base des champs 1 2 3 et 7
+#     check_key data.csv ',' 1 2 3 7
+#
+# Si aucun doublon n'est détecté, alors on affiche les éléments de la clef sur la base du header.
+# Sinon les clefs qui apparaîssent plusieurs fois sont affichées avec leur occurence d'aparition.
+
+dataFile="$1"
+shift
+delim="$1"
+shift
+keyFields="$(echo "$@" | sed 's/ /,/g')"
+
+head -n 1 "${dataFile}" | cut -d "${delim}" -f "${keyFields}"
+cut -d "${delim}" -f "${keyFields}" "${dataFile}" | sort | uniq -c | awk -F ' ' '$1 != 1 { print $0 }'

@@ -5,7 +5,7 @@ set -euo pipefail
 # Utilisation :
 # compress directory
 
-directory=$1
-archive=${directory}.tar.bz2
+directory="$1"
+archive="${directory}.tar.bz2"
 
-tar -jcvf ${archive} ${directory}
+tar -jcvf "${archive}" "${directory}"

@@ -1,0 +1,6 @@
+#!/bin/bash
+set -euo pipefail
+
+utilisateur="$1"
+
+groups "${utilisateur}" | awk -F ' : ' '{ print $2}' | sed 's/ /\n/g' | sort
