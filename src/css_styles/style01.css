@@ -1,6 +1,8 @@
 body {
     margin-left: 20%;
     margin-right: 20%;
+    background-color: #232629;
+    color: #ffffff;
 }
 
 p {
@@ -37,22 +39,20 @@ th {
 
 h1, h2, h3, h4, h5, h6 {
     font-family: sans-serif;
+    color: #ffffff;
 }
 
 h1 {
-    color: #0d6f0d;
     margin-top: 80px;
 }
 
 h2 {
-    color: #5e8523;
     margin-top: 50px;
 }
 
 #maintitle {
     font-family: sans-serif;
     font-size: xx-large;
-    color: #000000;
     text-align: center;
 }
 
