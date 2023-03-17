@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+
+# exchange key with list of remote hosts
+
+# public key
+keyfile="$1"
+# user for host machine
+user="$2"
+# file with one host by line
+hostFile="$3"
+
+keyvalue="$(cat "$keyfile")"
+mapfile -t hosts < "$hostFile"
+
+#TODO add key only if not already in authorized keys
+#TODO authorized keys file permission
+for host in "${hosts[@]}"; do
+    echo "Processing $host..."
+    ssh "$user"@"$host" -- 'mkdir -p ~/.ssh; echo '"$keyvalue"' >> .ssh/authorized_keys'
+    echo '  OK'
+done
+exit
+
+
