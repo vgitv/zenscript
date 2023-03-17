@@ -1,0 +1,63 @@
+#!/usr/bin/python3
+
+import datetime as dt
+import sys
+
+def timeformat(delta):
+    zero = dt.datetime.combine(dt.datetime.today(), dt.datetime.min.time())
+    out = zero + delta
+    return(out.strftime('%H:%M'))
+
+def printrow(delta1, delta2):
+    print('| ', timeformat(delta1), '  | ', timeformat(delta2), '  |')
+
+a_in_am  = sys.argv[1].split('h')
+a_out_am = sys.argv[2].split('h')
+a_in_pm  = sys.argv[3].split('h')
+
+in_am  = dt.timedelta(hours=int(a_in_am[0]), minutes=int(a_in_am[1]))
+out_am = dt.timedelta(hours=int(a_out_am[0]), minutes=int(a_out_am[1]))
+in_pm  = dt.timedelta(hours=int(a_in_pm[0]), minutes=int(a_in_pm[1]))
+
+partiel = in_am - out_am + in_pm
+
+print('.---------------------.')
+print('|', 'DURATION', '|', '  TIME', '  |')
+print('|---------------------|')
+
+duration = dt.timedelta(hours=8, minutes=0)
+time = duration + partiel
+printrow(duration, time)
+
+duration = dt.timedelta(hours=8, minutes=12)
+time = duration + partiel
+printrow(duration, time)
+
+duration = dt.timedelta(hours=8, minutes=15)
+time = duration + partiel
+printrow(duration, time)
+print("'---------------------'")
+
+duration = dt.timedelta(hours=10, minutes=0)
+time = duration + partiel
+print('\nATTENTION MAX 10h')
+print('.---------------------.')
+print('|', 'DURATION', '|', '  TIME', '  |')
+print('|---------------------|')
+printrow(duration, time)
+print("'---------------------'")
+
+
+now = dt.datetime.combine(dt.date.min, dt.datetime.now().time()) - dt.datetime.min
+print('\nIf you leave now at', timeformat(now))
+duration = now - partiel
+gain = duration - dt.timedelta(hours=8, minutes=12)
+print('DURATION =', timeformat(duration))
+print('GAIN     =', timeformat(gain))
+
+maxReste = dt.timedelta(hours=10, minutes=0) - duration
+if maxReste < dt.timedelta(hours=0, minutes=0):
+    print('ATTENTION JOURNÉE SUPÉRIEURE À 10H')
+    print('PARTIR IMMÉDIATEMENT')
+else:
+    print('Reste', timeformat(maxReste), 'avant d\'atteindre la journée de 10h')
