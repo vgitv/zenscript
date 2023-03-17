@@ -16,7 +16,7 @@ function ubuntu_up {
     sudo apt-get -y upgrade
 }
 
-log="$HOME/.opt/log/up.log"
+log="${XDG_STATE_HOME:-$HOME/.local/state}/up.log"
 distribution="$(lsb_release -a 2> /dev/null | awk '/^Distributor ID:/ { print $3 }')"
 echo -e "Detected distribution: ${distribution}\n"
 
