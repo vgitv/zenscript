@@ -214,7 +214,7 @@ class Pret(object):
         axes.set_ylim([0, self.m_totRemboursement * 1.2])
         plt.title('Remboursement total')
 
-        plt.suptitle('Pret à taux :   Ti = {} %   Ta = {} %   (mensualité : {})'.format(round(self.m_T*100, 2), round(self.m_Ta*100, 2), round(self.m_mens, 2)))
+        plt.suptitle('Pret à taux :   Ti = {} %   Ta = {} %   (mensualité : {} + {} = {})'.format(round(self.m_T*100, 2), round(self.m_Ta*100, 2), round(self.m_mens, 2), round(self.m_assurance, 2), round(self.m_mens+self.m_assurance, 2)))
 
         plt.show()
     #}
