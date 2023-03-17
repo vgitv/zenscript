@@ -3,17 +3,31 @@ set -euo pipefail
 
 # Update system. Store log file in log file
 
+function ubuntu_up {
+    date
+    sudo true
+
+    echo -e '\n# Update...'
+    echo '# apt-get update'
+    sudo apt-get -y update
+
+    echo -e '\n# Upgrade...'
+    echo '# apt-get upgrade'
+    sudo apt-get -y upgrade
+}
+
 log="$HOME/.opt/log/up.log"
+distribution="$(lsb_release -a 2> /dev/null | awk '/^Distributor ID:/ { print $3 }')"
+echo -e "Detected distribution: ${distribution}\n"
 
-date > "${log}"
-
-sudo true
-echo -e '\n# Update...'
-echo '# apt-get update' >> "${log}"
-sudo apt-get -y update | tee -a "${log}"
-
-echo -e '\n# Upgrade...'
-echo '# apt-get upgrade' >> "${log}"
-sudo apt-get -y upgrade | tee -a "${log}"
+case "${distribution}" in
+    'Ubuntu')
+        ubuntu_up > >(tee "${log}") 2>&1
+        ;;
+    *)
+        echo "Unknown distribution ${distribution}."
+        exit 1
+        ;;
+esac
 
 echo -e "\nDone ! Log file saved in ${log}"

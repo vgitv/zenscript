@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+displayEscape="${1:-0}"
+
 # Display the 256 colors available in shell.
 
 str1='##'
@@ -21,6 +23,7 @@ printf "\n\n"
 # 216 colors
 for i in {16..231}; do
     printf "%4d" "$i"
+    [[ "${displayEscape}" = '1' ]] && printf "%16s" ' \x1b[38;5;'"$i"'m '
     printf "\x1b[38;5;%sm${str1}\e[0m" "$i"
     printf "\x1b[48;5;%sm${str2}\e[0m" "$i"
     if (( (i - 15) % 6 == 0 )); then
