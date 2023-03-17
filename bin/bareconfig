@@ -6,7 +6,7 @@
 method="${1:-https}"
 
 function config {
-    /usr/bin/git --git-dir="$HOME/.bareconfig/" --work-tree="$HOME" $@
+    /usr/bin/git --git-dir="${BARECONFIG:-$HOME/.local/share/bareconfig}" --work-tree="$HOME" $@
 }
 
 function complexMove {
@@ -26,14 +26,14 @@ function complexMove {
 export -f complexMove
 
 # Clone git repo
-echo "Cloning .bareconfig repository to ${HOME}/.bareconfig"
+echo "Cloning bareconfig repository to ${BARECONFIG:-$HOME/.local/share/bareconfig}"
 case "${method}" in
     'https')
-        git clone --bare https://github.com/vgitv/.bareconfig.git "$HOME/.bareconfig"
+        git clone --bare https://github.com/vgitv/bareconfig.git "${BARECONFIG:-$HOME/.local/share/bareconfig}"
         true
         ;;
     'ssh')
-        git clone --bare git@github.com:vgitv/.bareconfig.git "$HOME/.bareconfig"
+        git clone --bare git@github.com:vgitv/bareconfig.git "${BARECONFIG:-$HOME/.local/share/bareconfig}"
         ;;
     *)
         echo 'Invalid method. Choose beetween https or ssh, or leave empty for https cloning.'
@@ -42,7 +42,7 @@ esac
 
 # backup directory and temp directory
 timestamp="$(date '+%Y%m%d%H%M')"
-backup="${HOME}/.config-backup-${timestamp}"
+backup="${HOME}/config-backup-${timestamp}"
 tempRepo="$(mktemp -d)"
 mkdir "${backup}"
 echo "Backup directory ${backup} created."
@@ -50,7 +50,7 @@ echo "Working directory ${tempRepo} created."
 
 # cloning from bare repo to temp directory
 echo "Cloning from bare repo to temp directory ${tempRepo}"
-git clone ~/.bareconfig "${tempRepo}"
+git clone "${BARECONFIG:-$HOME/.local/share/bareconfig}" "${tempRepo}"
 rm -rf "${tempRepo}/.git"
 
 # find all files in repo and move Home-equivalent if exists to backup directory
