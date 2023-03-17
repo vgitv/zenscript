@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-# Script d'installation des programmes principaux suite à l'installation d'ubuntu
+# Script en mode interactif d'installation des programmes principaux suite à
+# l'installation d'ubuntu
 
 function try {
     local action='retry'
@@ -25,14 +26,26 @@ function try {
     echo
 }
 
+# package installation
 try sudo apt-get -y install git
 try sudo apt-get -y install vim-gnome
 try sudo apt-get -y install zsh
 try sudo apt-get -y install tmux
 try sudo apt-get -y install htop
 try sudo apt-get -y install ranger
+try sudo apt-get -y install build-essential
+try sudo apt-get -y install firefox
+# to to: nvim, alacritty
 
+# settings
 try sudo chsh -s /bin/zsh
 
-try git clone https://github.com/vgitv/.opt ~/.opt
-# appel ~/.opt/bin/bareconfig
+# usefull repo
+try ~/.opt/bin/bareconfig
+curl -LSso ~/.config/nvim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+git clone https://github.com/morhetz/gruvbox.git ~/.config/nvim/bundle/gruvbox
+git clone https://github.com/preservim/nerdtree.git ~/.config/nvim/bundle/nerdtree
+
+mkdir -p ~/Code
+try git clone https://github.com/vgitv/st-vfork ~/Code/st-vfork
+try git clone https://github.com/vgitv/dwm-vfork ~/Code dwm-vfork
