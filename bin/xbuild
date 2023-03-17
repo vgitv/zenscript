@@ -29,7 +29,7 @@ else
     case "${extension}" in
         'md')
             echo 'Markdown file: generate html with pandoc.'
-            cp "${HOME}/.opt/src/css_styles/main-dark.css" "${directory}"
+            cp "${HOME}/.local/src/css_styles/main-dark.css" "${directory}"
             out="${directory}/${fileBaseName}.html"
             safeRun pandoc \
                 -sN \
