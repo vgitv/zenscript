@@ -28,7 +28,6 @@ dd='gaston'
 dest='HOME_BACKUPS'
 
 exclude="${HOME}/.opt/src/homesync/exclude.txt"
-include="${HOME}/.opt/src/homesync/include.txt"
 
 
 
@@ -52,7 +51,7 @@ fi
 # --include-from : dossier(s) conservés malgré le exclude
 # --delete       : efface sur backup les fichiers disparus
 cd
-rsync -arvh --exclude-from=${exclude} --include-from=${include} --delete ${HOME} ${backupspath}
+rsync -arvh --exclude-from=${exclude} --delete ${HOME} ${backupspath}
 
 
 
