@@ -21,20 +21,20 @@ table {
 }
 
 td, th {
-    border: 1px solid #ddd;
+    border: 1px solid #ffffff;
     padding: 8px;
 }
 
-tr:nth-child(even){background-color: #f2f2f2;}
+tr:nth-child(even){background-color: #555555;}
 
-tr:hover {background-color: #ddd;}
+tr:hover {background-color: #000000;}
 
 th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #ebdbb2;
+    color: black;
 }
 
 h1, h2, h3, h4, h5, h6 {
