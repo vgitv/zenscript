@@ -57,4 +57,5 @@ rsync -arvh --exclude-from=${exclude} --include-from=${include} --delete ${HOME}
 
 
 # FIN PROGRAMME
+echo -e "\nSaved in ${backupspath}"
 echo 'WELL DONE !!'
