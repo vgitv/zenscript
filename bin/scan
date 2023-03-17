@@ -1,4 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+echo '# update clamav database'
+sudo freshclam
+
+echo '# scan all disk'
 sudo clamscan --exclude-dir="^/sys" -r / > "${HOME}/.opt/log/clamscan.log" 2>&1
