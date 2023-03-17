@@ -8,25 +8,34 @@ set -euo pipefail
 
 flag="$1"
 
-function listUserDevice {
-    lsblk --raw -po MOUNTPOINT,NAME,LABEL | grep -E 'sd[^a][0-9]'
+function listPart {
+    lsblk --raw --noheadings -po TYPE,NAME,SIZE,LABEL,MOUNTPOINT | grep -E '^part /dev/sdb'
 }
 
 case "${flag}" in
     '-m')
-        label="$(listUserDevice | awk -F '[ ]' '{ if ($1=="") print $2 " (" $3 ")" }' | dmenu -i -p 'Mount device')"
+        label="$(listPart | awk -F '[ ]' '{ if ($5=="") print $2 " (" $4 ": " $3 ")" }' | dmenu -i -p 'Mount device')"
         device="$(echo ${label} | awk '{ print $1 }')"
-        udisksctl mount -b "${device}"
-        notify-send -t 4000 "Device ${label} mounted."
+        message="$(udisksctl mount -b "${device}")"
+        notify-send -t 5000 "${message}"
         ;;
     '-u')
-        label="$(listUserDevice | awk -F '[ ]' '{ if ($1!="") print $2 " (" $3 ")" }' | dmenu -i -p 'Eject device')"
+        label="$(listPart | awk -F '[ ]' '{ if ($5!="") print $2 " (" $4 ": " $3 ")" }' | dmenu -i -p 'Eject device')"
         answer="$(echo -e 'Yes\nNo' | dmenu -i -p "Eject device ${label} ?")"
-        if [[ "${answer}" == 'Yes' ]]; then
-            device="$(echo ${label} | awk '{ print $1 }')"
-            udisksctl unmount -b "${device}"
-            udisksctl power-off -b "${device}"
-            notify-send -t 4000 "Le périphérique ${label} peut être ejecté en toute sécurité."
+        [[ "${answer}" != 'Yes' ]] && notify-send -u critical -t 5000 "Attention, périphérique ${label} non démonté." && exit 0
+        device="$(echo ${label} | awk '{ print $1 }')"
+        udisksctl unmount -b "${device}"
+        if udisksctl power-off -b "${device}"; then
+            notify-send -t 5000 "Le périphérique ${label} peut être ejecté en toute sécurité."
+        else
+            notify-send -u critical -t 5000 "Erreur lors du démontage ! Le périphérique ${label} ne doit pas être ejecté."
         fi
+        ;;
+    '-l')
+        list="$(lsblk -po NAME,SIZE,TYPE,LABEL,MOUNTPOINT)"
+        notify-send -t 10000 "${list}"
+        ;;
+    *)
+        echo 'Option invalide.'
         ;;
 esac
