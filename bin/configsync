@@ -30,7 +30,10 @@ function safesync {
 
 while IFS= read -r host; do
     echo -e "\n# ${host}"
+    safesync "$user" "$host" "$HOME/.profile"
+    safesync "$user" "$host" "$HOME/.bash_profile"
     safesync "$user" "$host" "$HOME/.vim"
+    safesync "$user" "$host" "$HOME/.config/shell"
     safesync "$user" "$host" "$HOME/.bashrc"
-    safesync "$user" "$host" "$HOME/.config/bash/after_bashrc.sh"
+    safesync "$user" "$host" "$HOME/.config/bash"
 done < "${hostList}"
