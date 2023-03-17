@@ -1,0 +1,2 @@
+#!/bin/bash
+echo -n "$(date +'%a %d/%m/%Y %H:%M')"

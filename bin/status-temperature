@@ -1,0 +1,3 @@
+#!/bin/bash
+temp="$(sensors | awk '/^temp1/ { print $2 }' | tail -n 1)"
+printf '%b' "\U1F321 ${temp}"
