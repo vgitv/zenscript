@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+dir="$(realpath "$1")"
+main='test_1234.md'
+rm -f "${main}"
+
+temp="$(mktemp)"
+echo $temp
+
+find "${dir}" -mindepth 1 -maxdepth 1 -type d > "${temp}"
+
+while IFS= read -r item; do
+    echo -e "\n\n# $(basename ${item})\n"
+    # find "${item}" -mindepth 1 -maxdepth 1 -type f -name "*.html" -exec echo {} \;
+    find "${item}" -mindepth 1 -maxdepth 2 -type f -name "*.html" -exec echo "* [$(basename {})]({})" \;
+done < "${temp}"
+
+rm -f "${temp}"
