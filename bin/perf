@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+
+# Show memory (RAM) Used / Total
+# Show CPU temperature
+# Show most memory intensive processes
+# Show most CPU intensive processes
+
+
+# Show memory (RAM) Used / Total
+echo 'USEmem / TOTmem'
+free -h | awk '/^Mem/ { print $3 " / " $2 }'
+
+# Show most memory intensive processes
+echo
+echo 'USEmem / TOTmem (%)'
+ps -axch -o cmd:15,%mem --sort=-%mem | head | awk '{ print $0 " %" }'
+
+# Show CPU temperature
+echo
+echo 'CPU temperature'
+sensors | awk '/^temp1/ { print $2 }' | head -n 1
+
+# Show most CPU intensive processes
+echo
+echo 'CPUtime / REALtime (%)'
+ps -axch -o cmd:15,%cpu --sort=-%cpu | head | awk '{ print $0 " %" }'

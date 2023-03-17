@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+
+touchpadoff_state=`synclient | awk '/^\s*TouchpadOff/ { print $3 }'`
+
+if [[ ${touchpadoff_state} -eq 1 ]]; then
+    synclient TouchpadOff=0
+    notify-send 'Touchpad on'
+else
+    synclient TouchpadOff=1
+    notify-send 'Touchpad off'
+fi
