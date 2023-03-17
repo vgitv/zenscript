@@ -5,8 +5,13 @@ import sys
 
 def timeformat(delta):
     zero = dt.datetime.combine(dt.datetime.today(), dt.datetime.min.time())
-    out = zero + delta
-    return(out.strftime('%H:%M'))
+    if delta >= dt.timedelta(0):
+        out = zero + delta
+        sign = ''
+    else:
+        out = zero - delta
+        sign = '-'
+    return(sign + out.strftime('%H:%M'))
 
 def printrow(delta1, delta2):
     print('| ', timeformat(delta1), '  | ', timeformat(delta2), '  |')
@@ -55,9 +60,13 @@ gain = duration - dt.timedelta(hours=8, minutes=12)
 print('DURATION =', timeformat(duration))
 print('GAIN     =', timeformat(gain))
 
+maxReste = dt.timedelta(hours=8, minutes=12) - duration
+if maxReste >= dt.timedelta(0):
+    print('Reste', timeformat(maxReste), 'avant d\'atteindre la journée de 08:12')
+
 maxReste = dt.timedelta(hours=10, minutes=0) - duration
-if maxReste < dt.timedelta(hours=0, minutes=0):
+if maxReste < dt.timedelta(0):
     print('ATTENTION JOURNÉE SUPÉRIEURE À 10H')
     print('PARTIR IMMÉDIATEMENT')
 else:
-    print('Reste', timeformat(maxReste), 'avant d\'atteindre la journée de 10h')
+    print('Reste', timeformat(maxReste), 'avant d\'atteindre la journée de 10:00')
