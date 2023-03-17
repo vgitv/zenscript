@@ -16,6 +16,12 @@ function ubuntu_up {
     sudo apt-get -y upgrade
 }
 
+function manjaro_up {
+    set -x
+    sudo pacman -Syu --noprogressbar --noconfirm
+    set +x
+}
+
 log="${XDG_STATE_HOME:-$HOME/.local/state}/up.log"
 distribution="$(lsb_release -a 2> /dev/null | awk '/^Distributor ID:/ { print $3 }')"
 echo -e "Detected distribution: ${distribution}\n"
@@ -23,6 +29,9 @@ echo -e "Detected distribution: ${distribution}\n"
 case "${distribution}" in
     'Ubuntu')
         ubuntu_up > >(tee "${log}") 2>&1
+        ;;
+    'ManjaroLinux')
+        manjaro_up > >(tee "${log}") 2>&1
         ;;
     *)
         echo "Unknown distribution ${distribution}."
