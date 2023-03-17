@@ -40,7 +40,7 @@ print("'---------------------'")
 
 duration = dt.timedelta(hours=10, minutes=0)
 time = duration + partiel
-print('\nATTENTION MAX 10h')
+print('\n   ATTENTION MAX 10h')
 print('.---------------------.')
 print('|', 'DURATION', '|', '  TIME', '  |')
 print('|---------------------|')
