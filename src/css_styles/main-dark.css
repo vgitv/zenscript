@@ -1,8 +1,13 @@
+:root {
+    --bg: #232629;
+    --fg: #ebdbb2;
+}
+
 body {
     margin-left: 20%;
     margin-right: 20%;
-    background-color: #232629;
-    color: #ebdbb2;
+    background-color: var(--bg);
+    color: var(--fg);
 }
 
 p {
@@ -33,13 +38,13 @@ th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: #ebdbb2;
+    background-color: var(--fg);
     color: black;
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-family: sans-serif;
-    color: #ebdbb2;
+    color: var(--fg);
 }
 
 h1 {
