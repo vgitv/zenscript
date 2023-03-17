@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+
+# Exemple d'utilisation
+# renvoyer le nombre de branches par email du repo zenscript :
+# trackgit --branch zenscript | awk -F ',' '{ print $4 }' | sort | uniq -c | sort -nr
+
+scenario="$1"
+repo="$(realpath "$2")"
+
+case "$scenario" in
+    --fetch)
+        # équivalent de git remote update --prune
+        git -C "$repo" fetch --all --prune
+        ;;
+    --branch)
+        git -C "$repo" for-each-ref \
+            --format='%(refname),%(authorname),%(committerdate),%(committeremail)' \
+            --sort=committerdate | \
+            grep "refs/remotes/origin" | \
+            sed -E 's/<|>//g'
+        ;;
+    *)
+        echo "Invalid scenario $scenario"
+        ;;
+esac
