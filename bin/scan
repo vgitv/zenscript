@@ -1,8 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+log="${XDG_STATE_HOME:-$HOME/.local/state}/clamscan.log"
+
 echo '# update clamav database'
 sudo freshclam
 
 echo '# scan all disk'
-sudo clamscan --exclude-dir="^/sys" -r / > "${HOME}/.opt/log/clamscan.log" 2>&1
+sudo clamscan --exclude-dir="^/sys" -r / > >(tee "${log}") 2>&1
