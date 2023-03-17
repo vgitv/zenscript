@@ -5,6 +5,7 @@ function sanitize {
     echo "${1,,}" | sed -E \
         -e 's/œ/oe/g' \
         -e 's/ç/c/g' \
+        -e 's/ñ/n/g' \
         -e 's/[áàäâ]/a/g' \
         -e 's/[éèëê]/e/g' \
         -e 's/[íìïî]/i/g' \
