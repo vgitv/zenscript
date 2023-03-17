@@ -1,6 +1,20 @@
 #!/bin/bash
+set -euo pipefail
 
-prefix='🔋'
-battery="${prefix} $(acpi | grep -oE '[0-9]*%' | tail -n 1)"
+powerPath='/sys/class/power_supply/BAT0'
+
+if [[ -e "${powerPath}" ]]; then
+	status="$(cat "${powerPath}/status")"
+    case "$status" in
+        "Full")         status='+' ;;
+        "Discharging")  status='↓' ;;
+        "Charging")     status='↑' ;;
+		"Not charging") status='/' ;;
+		"Unknown")      status='?' ;;
+	esac
+    battery="🔋 ${status}$(cat "${powerPath}/capacity")%"
+else
+    battery='⚡ sect'
+fi
 
 echo -n "${battery}"

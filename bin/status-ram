@@ -1,3 +1,3 @@
 #!/bin/bash
 usedMem="$(free -h | awk '/^Mem/ { print $3 "/" $2 }')"
-printf '%b' " \U1f4bf ${usedMem}"
+printf '%b' "\U1f4bf ${usedMem}"
