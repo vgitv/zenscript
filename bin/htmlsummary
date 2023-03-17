@@ -33,7 +33,7 @@ def main():
     args = parser.parse_args()
     
     # create logger
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger()
     logger.setLevel(args.log)
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
