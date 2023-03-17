@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+
+# https://askubuntu.com/questions/461825/how-to-connect-to-wifi-from-the-command-line
+
+action="$1"
+
+if [[ "${action}" = '--saved']]; then
+    nmcli c
+elif [[ "${action}" = '--avail']]; then
+    nmcli d wifi list
+elif [[ "${action}" = '--connect' ]]; then
+fi
