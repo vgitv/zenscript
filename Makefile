@@ -1,19 +1,31 @@
+# target directories
 local := ~/.local/bin ~/.local/share ~/.local/state ~/.local/src ~/.local/lib ~/.local/etc
-bin := $(wildcard bin/*)
-target := $(subst bin/,~/.local/bin/,$(bin))
-css := ~/.local/src/css_styles/main-dark.css
+
+# bin
+sourcebin := $(wildcard bin/*)
+targetbin := $(subst bin/,~/.local/bin/,$(sourcebin))
+
+# css
+sourcecss := $(wildcard src/css_styles/*)
+targetcss := $(subst src/,~/.local/src/,$(sourcecss))
+
+# etc
 etc := ~/.local/etc/homesync/exclude
 
-install: $(local) $(target) $(css) $(etc)
+install: $(local) $(targetbin) $(targetcss) $(etc)
 
 .PHONY: print
 print:
-	@echo 'bin:'
-	@echo $(bin)
-	@echo -e '\ntarget:'
-	@echo $(target)
-	@echo -e '\nlocal:'
+	@echo 'local:'
 	@echo $(local)
+	@echo -e '\nsource bin:'
+	@echo $(sourcebin)
+	@echo -e '\ntarget bin:'
+	@echo $(targetbin)
+	@echo -e '\nsource css:'
+	@echo $(sourcecss)
+	@echo -e '\ntarget css:'
+	@echo $(targetcss)
 
 # local arborescence
 ~/.local/bin:
@@ -54,8 +66,8 @@ print:
 
 # remove all file targets but not directories
 uninstall:
-	rm -f $(target)
-	rm -f $(css)
+	rm -f $(targetbin)
+	rm -f $(targetcss)
 
 .PHONY: coffee
 coffee:
