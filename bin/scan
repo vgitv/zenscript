@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euo pipefail
+
+sudo clamscan --exclude-dir="^/sys" -r / >> "${HOME}/.opt/log/clamscan.log" 2>&1

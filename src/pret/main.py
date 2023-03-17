@@ -1,4 +1,4 @@
-#!/opt/anaconda3/bin/python
+#!/home/valentin/.anaconda3/bin/python
 
 from Pret import *
 
