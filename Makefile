@@ -27,19 +27,21 @@ print:
 ~/.local/src:
 	mkdir $@
 
-# binaires
+# binaires (implicit rule)
 ~/.local/bin/%: bin/%
 	cp $^ ~/.local/bin/ && chmod 750 $@
 
-# css styles
+# css styles (implicit rule)
 ~/.local/src/css_styles/%: ~/.local/src/css_styles src/css_styles/%
 	cp $(word 2,$^) ~/.local/src/css_styles/ && chmod 640 $@
 
 ~/.local/src/css_styles:
 	mkdir $@
 
+# remove all file targets but not directories
 uninstall:
 	rm -f $(target)
+	rm -f $(css)
 
 .PHONY: coffee
 coffee:
