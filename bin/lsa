@@ -4,8 +4,9 @@ set -euo pipefail
 # display separately hidden files and normal one.
 
 scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-libPath=${scriptPath}/../lib
-source ${libPath}/misc.sh
+libPath="${scriptPath}"/../lib
+# shellcheck source=/dev/null
+source "${libPath}/misc.sh"
 
 title 'HIDDEN'
 ls -dlh1 --color=auto --group-directories-first .*

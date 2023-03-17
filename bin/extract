@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-archive="$(realpath $1)"
+archive="$(realpath "$1")"
 extension="${archive##*.}"
 
 case "${extension}" in

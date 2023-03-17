@@ -50,7 +50,7 @@ fi
 # --include-from : dossier(s) conservés malgré le exclude
 # --delete       : efface sur backup les fichiers disparus
 cd
-rsync -arvh --exclude-from=${exclude} --delete ${HOME} ${backupspath}
+rsync -arvh --exclude-from="${exclude}" --delete "${HOME}" "${backupspath}"
 
 
 

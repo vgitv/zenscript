@@ -19,7 +19,7 @@ dataFile="$1"
 shift
 delim="$1"
 shift
-keyFields="$(echo "$@" | sed 's/ /,/g')"
+keyFields="${*// /,}"
 
 head -n 1 "${dataFile}" | cut -d "${delim}" -f "${keyFields}"
 cut -d "${delim}" -f "${keyFields}" "${dataFile}" | sort | uniq -c | awk -F ' ' '$1 != 1 { print $0 }'
