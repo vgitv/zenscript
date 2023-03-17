@@ -3,6 +3,7 @@
 import subprocess
 import shutil
 import argparse
+import pathlib
 
 parser = argparse.ArgumentParser(description='Main script argument parser.')
 parser.add_argument('--title', help='HTML main title.', default='Notes')
@@ -25,10 +26,8 @@ def diffSection(previousSection, section):
             d['h' + str(i+1)] = elt.replace('_', ' ')
     return d
 #}
-p = subprocess.Popen(["whoami"], stdout=subprocess.PIPE)
-user = p.communicate()[0].decode().replace('\n', '')
-shutil.copy('/home/{u}/.local/src/css_styles/main-dark.css'.format(u=user), '.')
 
+shutil.copy(str(pathlib.Path.home()) + '/.local/src/css_styles/main-dark.css', '.')
 
 html = '<!DOCTYPE html>'
 html += '\n<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">'
