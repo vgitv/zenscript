@@ -9,12 +9,12 @@ set -euo pipefail
 # Exemple
 #   zipcheck .
 
-location="$(realpath $1)"
+location="$(realpath "$1")"
 
 for archive in ${location}/*.zip; do
     if zipinfo "${archive}" > /dev/null 2>&1; then
         true
     else
-        echo "Archive $(basename ${archive}) corrompue"
+        echo "Archive $(basename "${archive}") corrompue"
     fi
 done

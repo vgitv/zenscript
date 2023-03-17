@@ -1,17 +1,19 @@
 #!/bin/bash
 set -euo pipefail
 
-# Update system. Store log file in $HOME/.opt/log/up.log
+# Update system. Store log file in log file
 
-echo `date` > $HOME/.opt/log/up.log
+log="$HOME/.opt/log/up.log"
+
+date > "${log}"
 
 sudo true
-echo '# update...'
-echo '# apt-get update' >> $HOME/.opt/log/up.log
-sudo apt-get -y update >> $HOME/.opt/log/up.log 2>&1
+echo -e '\n# Update...'
+echo '# apt-get update' >> "${log}"
+sudo apt-get -y update | tee -a "${log}"
 
-echo -e "\n# upgrade..."
-echo '# apt-get upgrade' >> $HOME/.opt/log/up.log
-sudo apt-get -y upgrade >> $HOME/.opt/log/up.log 2>&1
+echo -e '\n# Upgrade...'
+echo '# apt-get upgrade' >> "${log}"
+sudo apt-get -y upgrade | tee -a "${log}"
 
-echo -e "\nDone ! Log file save in $HOME/.opt/log/up.log"
+echo -e "\nDone ! Log file saved in ${log}"
