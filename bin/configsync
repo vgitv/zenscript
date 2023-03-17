@@ -9,18 +9,39 @@ user="$1"
 # file with one host by line
 hostList="$2"
 
-config='/tmp/bareconfig'
+function safesync {
+    local filetype="$1"
+    local object="$2"
+    local dest="$3"
 
-[[ -d "${config}" ]] && echo "${config} already exists." && exit 1
-git clone "${HOME}/.bareconfig" "${config}"
-rm -rf "${config}/.git"
-rm -f "${config}/.gitignore"
-cp "${HOME}/.config/bash/after_bashrc.sh" "${config}/.config/bash"
-cp "${HOME}/.config/zsh/after_zshrc.sh" "${config}/.config/zsh"
+    case "${filetype}" in
+        '-d')
+            if [[ -d "${object}" ]]; then
+                echo -e "\nINFO: sync directory ${object}"
+                rsync -arvh --delete "${object}" "${dest}"
+            else
+                echo "WARNING: no ${object} to sync."
+            fi
+            ;;
+        '-f')
+            if [[ -f "${object}" ]]; then
+                echo -e "\nINFO: sync file ${object}"
+                rsync -avh "${object}" "${dest}"
+            else
+                echo "WARNING: no ${object} to sync."
+            fi
+            ;;
+        *)
+            echo 'Unknown filetype. Choose beetween d and f.'
+            exit
+            ;;
+    esac
+}
 
 while IFS= read -r host; do
     echo -e "\n# ${host}"
-    find "${config}" -mindepth 1 -maxdepth 1 -exec rsync -arvh {} ${user}@${host}: \;
+    safesync -d "${HOME}/.vim" "${user}"@"${host}":
+    safesync -d "${HOME}/.config/nvim" "${user}"@"${host}":.config/
+    safesync -f "${HOME}/.bashrc" "${user}"@"${host}":
+    safesync -f "${HOME}/.config/bash/after_bashrc.sh" "${user}"@"${host}":.config/bash/
 done < "${hostList}"
-
-rm -rf "${config}"
