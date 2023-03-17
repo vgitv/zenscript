@@ -51,6 +51,7 @@ def main():
     html += '  <meta name="generator" content="pandoc" />\n'
     html += '  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />\n'
     html +=f'  <title>{args.title}</title>\n'
+    html += '  <link rel="icon" type="image/png" href="./favicon.png">\n'
     html += '  <style type="text/css">\n'
     html += '      code{white-space: pre-wrap;}\n'
     html += '      span.smallcaps{font-variant: small-caps;}\n'
