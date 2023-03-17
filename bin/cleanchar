@@ -1,0 +1,24 @@
+#!/bin/bash
+set -euo pipefail
+
+fichier=$1
+
+sed -E --in-place='.back' 's/Œ/OE/g' ${fichier}
+sed -Ei 's/œ/oe/g' ${fichier}
+sed -Ei 's/Ç/C/g' ${fichier}
+sed -Ei 's/ç/c/g' ${fichier}
+
+sed -Ei 's/(Á|À|Ä|Â)/A/g' ${fichier}
+sed -Ei 's/(á|à|ä|â)/a/g' ${fichier}
+
+sed -Ei 's/(É|È|Ë|Ê)/E/g' ${fichier}
+sed -Ei 's/(é|è|ë|ê)/e/g' ${fichier}
+
+sed -Ei 's/(Í|Ì|Ï|Î)/I/g' ${fichier}
+sed -Ei 's/(í|ì|ï|î)/i/g' ${fichier}
+
+sed -Ei 's/(Ó|Ò|Ö|Ô)/O/g' ${fichier}
+sed -Ei 's/(ó|ò|ö|ô)/o/g' ${fichier}
+
+sed -Ei 's/(Ú|Ù|Ü|Û)/U/g' ${fichier}
+sed -Ei 's/(ú|ù|ü|û)/u/g' ${fichier}
