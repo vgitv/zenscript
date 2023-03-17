@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+
+# 16 basic colors
+for i in {0..15}; do
+    printf "%3d" "$i"
+    printf "\x1b[48;5;%sm   \e[0m " "$i"
+    if [[ $i -eq 7 ]]; then
+        printf "\n"
+    fi
+done
+
+printf "\n\n"
+
+# all other colors and grey colors
+for i in {16..255}; do
+    printf "%3d" "$i"
+    printf "\x1b[48;5;%sm   \e[0m " "$i"
+    if (( ($i - 15) % 6 == 0 )); then
+        printf "\n"
+        if [[ $i -eq 51 || $i -eq 87  || $i -eq 123 || $i -eq 159 || $i -eq 195 || $i -eq 231 ]]; then
+            printf "\n"
+        fi
+    fi
+done
