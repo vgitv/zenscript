@@ -36,7 +36,7 @@ html += '\n      span.smallcaps{font-variant: small-caps;}'
 html += '\n      span.underline{text-decoration: underline;}'
 html += '\n      div.column{display: inline-block; vertical-align: top; width: 50%;}'
 html += '\n  </style>'
-html += '\n  <link rel="stylesheet" href="/home/{u}/.opt/src/css_styles/main-dark.css" />'.format(u=user)
+html += '\n  <link rel="stylesheet" href="/home/{u}/.local/src/css_styles/main-dark.css" />'.format(u=user)
 html += '\n</head>'
 html += '\n<body>'
 html += '\n<h1 id="maintitle">Notes</h1>'
