@@ -4,7 +4,7 @@ set -euo pipefail
 str1='##'
 str2='  '
 
-# 16 basic colors
+# standard and high intensity colors
 for i in {0..15}; do
     printf "%4d" "$i"
     printf "\x1b[38;5;%sm${str1}\e[0m" "$i"
@@ -16,7 +16,7 @@ done
 
 printf "\n\n"
 
-# other colors
+# 216 colors
 for i in {16..231}; do
     printf "%4d" "$i"
     printf "\x1b[38;5;%sm${str1}\e[0m" "$i"
