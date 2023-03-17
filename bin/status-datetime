@@ -1,2 +1,0 @@
-#!/bin/bash
-echo -ne "$(date +'\U1F5D3 %d/%m/%Y  \U1F551 %H:%M')"

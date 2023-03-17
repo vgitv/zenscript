@@ -1,3 +1,0 @@
-#!/bin/bash
-temp="$(sensors | awk '/^temp/ { print $2 }' | grep -E '[0-9]')"
-printf '%b' "\U1F321 ${temp}"
