@@ -2,7 +2,7 @@ body {
     margin-left: 20%;
     margin-right: 20%;
     background-color: #232629;
-    color: #ffffff;
+    color: #ebdbb2;
 }
 
 p {
@@ -39,7 +39,7 @@ th {
 
 h1, h2, h3, h4, h5, h6 {
     font-family: sans-serif;
-    color: #dfdfdf;
+    color: #ebdbb2;
 }
 
 h1 {
