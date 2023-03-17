@@ -19,7 +19,7 @@ ps -axch -o cmd:15,%mem --sort=-%mem | head | awk '{ print $0 " %" }'
 # Show CPU temperature
 echo
 echo 'CPU temperature'
-sensors | awk '/^temp1/ { print $2 }' | tail -n 1
+sensors | awk '/^temp/ { print $2 }' | grep -E '[0-9]'
 
 # Show most CPU intensive processes
 echo

@@ -1,28 +1,28 @@
 #!/bin/bash
 set -euo pipefail
 
-# Montage vidéo : superposition d'un fichier vidéo et audio.
-#
-# Arborescence requise :
-# compositeur_titre_morceau
-# └── [projet]
-#     ├── [audio].wav
-#     └── [video].mp4
-#
-# Résultat gbuild -a [offset] (superposition) :
-# compositeur_titre_morceau
-# └── [projet]
-#     ├── [video].mp4
-#     ├── [audio].wav
-#     └── all.mkv
-#
-# Résultat gbuild -g [startTime] [stopTime] (génération finale) :
-# compositeur_titre_morceau
-# └── [projet]
-#     ├── [video].mp4
-#     ├── [audio].wav
-#     ├── all.mkv
-#     └── compositeur_titre_morceau.mkv
+[[ $# -eq 0 ]] && echo 'Montage vidéo : superposition d''un fichier vidéo et audio.
+
+Arborescence requise :
+compositeur_titre_morceau
+└── [projet]
+    ├── [audio].wav
+    └── [video].mp4
+
+Résultat gbuild -a [offset] (superposition) :
+compositeur_titre_morceau
+└── [projet]
+    ├── [video].mp4
+    ├── [audio].wav
+    └── all.mkv
+
+Résultat gbuild -g [startTime] [stopTime] (génération finale) :
+compositeur_titre_morceau
+└── [projet]
+    ├── [video].mp4
+    ├── [audio].wav
+    ├── all.mkv
+    └── compositeur_titre_morceau.mkv' && exit
 
 
 option="$1"
