@@ -5,6 +5,7 @@ set -euo pipefail
 
 echo `date` > $HOME/.opt/log/up.log
 
+sudo true
 echo '# update...'
 echo '# apt-get update' >> $HOME/.opt/log/up.log
 sudo apt-get -y update >> $HOME/.opt/log/up.log 2>&1
