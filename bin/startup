@@ -1,0 +1,122 @@
+#!/bin/bash
+set -euo pipefail
+
+# Script d'installation des programmes principaux suite à l'installation d'ubuntu
+
+
+function try {
+    local action='retry'
+
+    echo '# --------------------------------'
+    echo "# $*"
+
+    while [[ "${action}" = 'retry' ]]; do
+        if "$@"; then
+            echo 'OK'
+        else
+            echo "ERREUR"
+            echo 'Continue ? ( retry / skip )'
+            read -r action
+            while [[ ! "${action}" =~ (retry|skip) ]]; do
+                echo 'Wrong choice ( retry / skip )'
+                read -r action
+            done
+        fi
+    done
+    echo
+}
+
+try ls smldkfj
+
+
+# sudo true
+# 
+# 
+# 
+# # -----------------------------------------------------------------------------------------------------------
+# # git
+# # -----------------------------------------------------------------------------------------------------------
+# echo '# Installation git'
+# sudo apt-get -y install git
+# 
+# 
+# 
+# # -----------------------------------------------------------------------------------------------------------
+# # vim
+# # -----------------------------------------------------------------------------------------------------------
+# echo '# Installation vim'
+# sudo apt-get -y install vim-gnome
+# cd
+# git clone https://github.com/vgitv/.vim
+# cd .vim/bundle
+# git clone https://github.com/scrooloose/nerdtree
+# 
+# 
+# 
+# # -----------------------------------------------------------------------------------------------------------
+# # zsh
+# # -----------------------------------------------------------------------------------------------------------
+# echo '# Installation zsh'
+# sudo apt-get -y install zsh
+# sudo chsh -s /bin/zsh
+# curl -L http://install.ohmyz.sh | sudo sh
+# 
+# cd
+# git clone https://github.com/zsh-users/antigen.git
+# mv antigen .antigen
+# 
+# 
+# 
+# # -----------------------------------------------------------------------------------------------------------
+# # tmux
+# # -----------------------------------------------------------------------------------------------------------
+# echo '# Installation tmux'
+# sudo apt-get -y install tmux
+# 
+# 
+# 
+# # -----------------------------------------------------------------------------------------------------------
+# # htop
+# # -----------------------------------------------------------------------------------------------------------
+# echo '# Installation htop'
+# sudo apt-get -y install htop
+# 
+# 
+# 
+# # -----------------------------------------------------------------------------------------------------------
+# # $HOME/.vconfig
+# # -----------------------------------------------------------------------------------------------------------
+# echo '# Récupération de .vconfig'
+# cd
+# git clone https://github.com/vgitv/.vconfig
+# 
+# cd
+# dir=old_files
+# mkdir ${dir}
+# 
+# if [ -f .bashrc ]; then
+#     mv .bashrc ${dir}/bashrc
+# fi
+# 
+# if [ -f .zshrc ]; then
+#     mv .zshrc ${dir}/zshrc
+# fi
+# 
+# # link
+# ln -s .vconfig/bashrc .bashrc
+# ln -s .vconfig/zshrc .zshrc
+# ln -s .vconfig/tmux.conf .tmux.conf
+# 
+# 
+# 
+# # -----------------------------------------------------------------------------------------------------------
+# # $HOME/.opt
+# # -----------------------------------------------------------------------------------------------------------
+# echo '# Récupération de .opt'
+# cd
+# git clone https://github.com/vgitv/.opt
+# # attention, comment corriger les liens ?
+# 
+# 
+# 
+# # pistes : ranger, youtube-dl
