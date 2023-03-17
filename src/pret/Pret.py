@@ -1,7 +1,26 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def autolabel(rects, xpos='center'):
+    """
+    Attach a text label above each bar in *rects*, displaying its height.
 
+    *xpos* indicates which side to place the text w.r.t. the center of
+    the bar. It can be one of the following {'center', 'right', 'left'}.
+    """
+
+    ha = {'center': 'center', 'right': 'left', 'left': 'right'}
+    offset = {'center': 0, 'right': 1, 'left': -1}
+
+    for rect in rects:
+        height = round(rect.get_height(), 2)
+        plt.annotate('{}'.format(height),
+            xy=(rect.get_x() + rect.get_width() / 2, height),
+            xytext=(offset[xpos]*3, 3),
+        textcoords="offset points",
+        ha=ha[xpos], va='bottom')
+    #}
+#}
 
 class Pret(object):
 
@@ -165,6 +184,9 @@ class Pret(object):
 
     def graph2(self):
 
+        plt.figure(0)
+        plt.subplot2grid((2, 2), (0, 0), colspan=2)
+
         # indice des années
         ind = np.arange(1, self.m_duree + 1)
 
@@ -177,9 +199,22 @@ class Pret(object):
         plt.ylabel('Montant')
         plt.xlabel('Années')
         t = self.__str__()
-        plt.title(t)
+        plt.title('Remboursements par année')
         plt.xticks(ind)
-        plt.legend((p1[0], p2[0], p3[0]), ('Assurance', 'Intérêts', 'Capital'))
+        plt.legend((p3[0], p2[0], p1[0]), ('Capital', 'Intérêts', 'Assurance'))
+
+
+        plt.subplot2grid((2, 2), (1, 0))
+        ind = [1, 2, 3, 4]
+        values = [self.m_capital, self.m_totRemboursement, self.m_totAssurance, self.m_totInteret]
+        labels = ['capital', 'total', 'assurance', 'intérêts']
+        p1 = plt.bar(ind, values, tick_label=labels)
+        autolabel(p1)
+        axes = plt.gca()
+        axes.set_ylim([0, self.m_totRemboursement * 1.2])
+        plt.title('Remboursement total')
+
+        plt.suptitle('Pret à taux :   Ti = {} %   Ta = {} %   (mensualité : {})'.format(round(self.m_T*100, 2), round(self.m_Ta*100, 2), round(self.m_mens, 2)))
 
         plt.show()
     #}
