@@ -1,0 +1,148 @@
+#!/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
+
+here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# shellcheck source=/dev/null
+source "$here/../lib/logging.sh"
+
+[[ $# -eq 0 ]] && cat << EOF && exit 0
+NAME
+    tag
+
+SYNOPSIS
+    tag [OPTIONS] directory titles_list_file
+
+DESCRIPTION
+    Set tag (metadata) to all flac files in a directory. Flac files must be
+    ordered allong with titles tracks.
+
+OPTIONS
+    --album=
+        Album name
+
+    --artist=
+        Artist name
+
+    --year=
+        Album date
+
+    --genre=
+        Album genre
+
+EXAMPLES
+    # named args can be used
+    tag --album='album title' --artist='artist name' --year='2023' --genre='Rock' testdir/ titles.txt
+    
+    # if not they will be read from stdin
+    tag testdir/ titles.txt
+EOF
+
+function sanitize {
+    echo "${1,,}" | sed -E \
+        -e 's/Œ/OE/g' \
+        -e 's/œ/oe/g' \
+        -e 's/Ç/C/g' \
+        -e 's/ç/c/g' \
+        -e 's/(Á|À|Ä|Â)/A/g' \
+        -e 's/(á|à|ä|â)/a/g' \
+        -e 's/(É|È|Ë|Ê)/E/g' \
+        -e 's/(é|è|ë|ê)/e/g' \
+        -e 's/(Í|Ì|Ï|Î)/I/g' \
+        -e 's/(í|ì|ï|î)/i/g' \
+        -e 's/(Ó|Ò|Ö|Ô)/O/g' \
+        -e 's/(ó|ò|ö|ô)/o/g' \
+        -e 's/(Ú|Ù|Ü|Û)/U/g' \
+        -e 's/(ú|ù|ü|û)/u/g' \
+        -e 's/\s+/-/g' \
+        -e "s/[!\.\?\*':\(\)]/-/g" \
+        -e 's/-+/-/g'
+}
+
+while [[ $1 =~ ^-- ]]; do
+    case $1 in
+        --album=*)
+            album="${1/--album=}"
+            shift
+            ;;
+        --artist=*)
+            artist="${1/--artist=}"
+            shift
+            ;;
+        --year=*)
+            year="${1/--year=}"
+            shift
+            ;;
+        --genre=*)
+            genre="${1/--genre=}"
+            shift
+            ;;
+        *)
+            echo "Invalid option $1"
+            ;;
+    esac
+done
+
+# target directory
+location=$(realpath "$1")
+# file with list of track titles
+titlesFile="$2"
+
+# Ask for mutual tags if not defined
+[ -z "${album:-}" ] && echo 'Enter the album name.' && read -r album
+[ -z "${artist:-}" ] && echo 'Enter the artist name.' && read -r artist
+[ -z "${year:-}" ] && echo 'Enter the year.' && read -r year
+[ -z "${genre:-}" ] && echo 'Enter the genre.' && read -r genre
+
+# Set track number
+tracktotal=$(wc -l < "$titlesFile")
+flactotal=$(find "$location" -type f -name "*.flac" | wc -l)
+
+if [[ ${tracktotal} -ne ${flactotal} ]]; then
+    error "Number of flac different to number of titles"
+fi
+
+log info 'Clean metadata'
+echo 'Remove tags'
+metaflac --remove-all-tags "$location"/*.flac
+echo 'Remove pictures'
+metaflac --remove-all "$location"/*.flac
+
+log info 'Set shared tags'
+echo "ARTIST: ${artist}"
+echo "ALBUMARTIST: ${artist}"
+echo "ALBUM: ${album}"
+echo "DATE: ${year}"
+echo "GENRE: ${genre}"
+echo "TRACKTOTAL: ${tracktotal}"
+metaflac --set-tag=ARTIST="$artist" "$location"/*.flac
+metaflac --set-tag=ALBUMARTIST="$artist" "$location"/*.flac
+metaflac --set-tag=ALBUM="$album" "$location"/*.flac
+metaflac --set-tag=DATE="$year" "$location"/*.flac
+metaflac --set-tag=GENRE="$genre" "$location"/*.flac
+metaflac --set-tag=TRACKTOTAL="$tracktotal" "$location"/*.flac
+
+log info 'Set track-specific tag and sanitize filename'
+mapfile -t titles < "$titlesFile"
+tmp=$(mktemp)
+ls -1 "$location"/*.flac > "$tmp"
+cpt=0
+
+while IFS= read -r flac; do
+    ntrack="$(printf "%02d" "$((cpt+1))")"
+    echo "${ntrack} - ${titles[${cpt}]}"
+    metaflac --set-tag=TITLE="${titles[${cpt}]}" "$flac"
+    metaflac --set-tag=TRACKNUMBER="$ntrack" "$flac"
+    title="$(sanitize "${titles[${cpt}]}")"
+    dest="${location}/${ntrack}_${title}.flac"
+    [[ ${flac} != "${dest}" ]] && mv -f "$flac" "$dest"
+    cpt=$((cpt+1))
+done < "$tmp"
+
+log info 'Set cover picture'
+# album cover is the first picture found (png or jpg or jpeg)
+cover=$(find "$location" -name "*.png" -or -name "*.jp*g" | head -n 1)
+echo "Cover: ${cover}"
+[[ -z ${cover} ]] || metaflac --import-picture-from="$cover" "$location"/*.flac
+
+log info 'All done!'
