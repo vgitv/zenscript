@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+
+echo `date` > $HOME/.opt/log/up.log
+
+echo 'update...'
+echo '# apt-get update' >> $HOME/.opt/log/up.log
+apt-get update >> $HOME/.opt/log/up.log
+
+echo 'upgrade...'
+echo '# apt-get upgrade' >> $HOME/.opt/log/up.log
+apt-get upgrade >> $HOME/.opt/log/up.log
+
+echo "Done ! Log file save in $HOME/.opt/log/up.log"
