@@ -1,8 +1,8 @@
-#!/bin/python3
+#!/usr/bin/python3
 
 import subprocess
 
-p = subprocess.Popen(["/bin/find", "-mindepth", "2", "-name", "*.html"], stdout=subprocess.PIPE)
+p = subprocess.Popen(["/usr/bin/find", "-mindepth", "2", "-name", "*.html"], stdout=subprocess.PIPE)
 output = p.communicate()[0].decode()
 tree = output.split('\n')[:-1]
 tree.sort()
