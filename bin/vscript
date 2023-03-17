@@ -4,6 +4,6 @@ set -euo pipefail
 scriptPath=${0%/*}
 libPath=${scriptPath}/../lib
 
-source ${libPath}/misc
+source ${libPath}/misc.sh
 
 title 'test'
