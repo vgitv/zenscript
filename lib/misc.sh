@@ -9,18 +9,18 @@ function title {
 function try {
     local action='retry'
 
-    echo '# --------------------------------'
-    echo "# $*"
+    echo "=> try >>> $*"
 
     while [[ "${action}" = 'retry' ]]; do
         if "$@"; then
-            echo 'OK'
+            action='ok'
+            echo '=> Success'
         else
-            echo "ERREUR"
-            echo 'Continue ? ( retry / skip )'
+            echo "=> ERROR"
+            echo '=> Continue ? ( retry / skip )'
             read -r action
-            while [[ ! "${action}" =~ (retry|skip) ]]; do
-                echo 'Wrong choice ( retry / skip )'
+            while [[ ! "${action}" =~ ^(retry|skip)$ ]]; do
+                echo '=> Wrong choice ( retry / skip )'
                 read -r action
             done
         fi
