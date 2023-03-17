@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # default value either /media or /run/media
-dest="${1:-/run/media/${USER}/USB/MUSIC}"
+dest="${1:-/run/media/${USER}/USBMUSIC}"
 
 # source directory
 database="${HOME}/Musique/_database_"
