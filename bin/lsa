@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+
+# display separately hidden files and normal one.
+
+scriptPath=${0%/*}
+libPath=${scriptPath}/../lib
+source ${libPath}/misc.sh
+
+title 'HIDDEN'
+ls -dlh1 --color=auto --group-directories-first .*
+
+echo -e "\n"
+title 'OTHER'
+ls -lh1 --color=auto --group-directories-first
