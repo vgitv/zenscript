@@ -3,10 +3,6 @@ body {
     margin-right: 20%;
 }
 
-h1 {
-    font-size: x-large;
-}
-
 p {
     text-align: justify;
 }
@@ -45,13 +41,11 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
     color: #0d6f0d;
-    font-size: x-large;
     margin-top: 80px;
 }
 
 h2 {
     color: #5e8523;
-    font-size: large;
     margin-top: 50px;
 }
 
