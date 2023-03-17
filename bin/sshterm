@@ -14,4 +14,4 @@ config="${HOME}/.ssh/config"
 
 host="$(grep -i Hostname "${config}" | awk '{ print $2 }' | dmenu -l 50)"
 user="$(grep -A 1 "${host}" "${config}" | grep -i User | awk '{ print $2 }')"
-konsole -e ssh "${user}"@"${host}"
+konsole -e ssh "${user}"@"${host}" &
