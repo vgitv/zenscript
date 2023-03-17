@@ -10,6 +10,9 @@ directory="$(dirname "${filePath}")"
 fileName="$(basename "${filePath}")"
 fileBaseName="${fileName%.*}"
 extension="${fileName##*.}"
+item="$(basename "${directory}")"
+# make sure item has no space (or pandoc will fail)
+item="${item// /_}"
 
 # echo "filePath $filePath"
 # echo "directory ${directory}"
@@ -36,7 +39,7 @@ else
                 -V colorlinks \
                 -c 'main-dark.css' \
                 --highlight-style=breezeDark \
-                --metadata pagetitle="${fileBaseName}" \
+                --metadata pagetitle="${item}" \
                 "${filePath}" \
                 -o "${out}"
             echo "${out} generated."
