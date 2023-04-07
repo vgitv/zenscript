@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+
+# Rename files in current directory by editing their names in EDITOR.
+
+before="$(mktemp)"
+after="$(mktemp)"
+script="$(mktemp)"
+
+ls -1 --quote-name > "$before"
+cp "$before" "$after"
+
+"$EDITOR" "$after"
+paste -d ' ' "$before" "$after" | awk '{ print "mv -v " $0 }' > "$script"
+cat "$script"
+echo -ne '\nExecute these commands ? (y/n) '
+read -r answer
+if [[ ${answer} = 'y' ]]; then
+   bash "$script"
+   rm "$before" "$after" "$script"
+   echo 'Done'
+else
+   rm "$before" "$after" "$script"
+   echo 'Noting done'
+fi
