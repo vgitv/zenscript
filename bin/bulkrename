@@ -5,21 +5,33 @@ set -euo pipefail
 
 before="$(mktemp)"
 after="$(mktemp)"
-script="$(mktemp)"
+script="$(mktemp /tmp/tmp-XXXXXXXXXX.sh)"
 
-ls -1 --quote-name > "$before"
+cat << EOF > "$script"
+# This file will be executed when you close the editor.
+# Please double-check everything, clear the file to abort.
+EOF
+
+ls --quote-name > "$before"
 cp "$before" "$after"
 
+# Edit filenames
 "$EDITOR" "$after"
-paste -d ' ' "$before" "$after" | awk '{ print "mv -v " $0 }' > "$script"
-cat "$script"
-echo -ne '\nExecute these commands ? (y/n) '
-read -r answer
-if [[ ${answer} = 'y' ]]; then
-   bash "$script"
-   rm "$before" "$after" "$script"
-   echo 'Done'
-else
-   rm "$before" "$after" "$script"
-   echo 'Nothing done'
+
+# Check that no line was removed
+if [[ $(wc -l < "$before") -ne $(wc -l < "$after") ]]; then
+    echo 'You cannot remove lines.'
+    exit 1
 fi
+
+# Unit separator to avoid problems handling files with special characters
+paste -d $'\037' "$before" "$after" | awk -F $'\037' '$1 != $2 { print "mv -vi -- " $1 " " $2 }' >> "$script"
+
+# Edit script to double-check everyting before executing
+"$EDITOR" "$script"
+
+# Execute script
+bash "$script"
+
+# clean
+rm "$before" "$after" "$script"
