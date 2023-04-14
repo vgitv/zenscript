@@ -2,6 +2,7 @@
 set -euo pipefail
 
 # Description:
+#   Clean text from special characters.
 #
 # Exemples:
 #   sanitize file.txt
