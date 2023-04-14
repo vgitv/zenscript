@@ -1,0 +1,40 @@
+#!/bin/bash
+set -euo pipefail
+
+# Description:
+#   Clean text from special characters.
+#
+# Exemples:
+#   sanitize file.txt
+#   cat file.txt | sanitize
+#   sanitize <<< "My custom string"
+#
+# Features:
+#   Lower case
+#   Replace accented characters by their neutral equivalent
+#   Blank characters are replace by _
+#   Special characters other than _ and . are replace by -
+#
+# Tests:
+#   sanitize <<< "Je m'appelle Stéphane."
+# Should return:
+#   je_m-appelle_stephane.
+
+if [[ $# -eq 1 ]]; then
+    input="$1"
+else
+    input=/dev/stdin
+fi
+
+tr '[:upper:]' '[:lower:]' < "$input" | sed -E \
+    -e 's/œ/oe/g' \
+    -e 's/ç/c/g' \
+    -e 's/ñ/n/g' \
+    -e 's/[áàäâ]/a/g' \
+    -e 's/[éèëê]/e/g' \
+    -e 's/[íìïî]/i/g' \
+    -e 's/[óòöô]/o/g' \
+    -e 's/[úùüû]/u/g' \
+    -e 's/\s+/_/g' \
+    -e 's/[^a-z0-9_\.]/-/g' \
+    -e 's/-+/-/g'

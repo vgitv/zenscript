@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+
+before="$(mktemp)"
+after="$(mktemp)"
+script="$(mktemp /tmp/tmp-XXXXXXXXXX.sh)"
+
+cat << EOF > "$script"
+# This file will be executed when you close the editor.
+# Please double-check everything, clear the file to abort.
+EOF
+
+ls --quote-name > "$before"
+# Adding surrounding quotes is safe because ls result is sanitised
+ls | sanitize | awk '{ print "\"" $0 "\"" }' > "$after"
+
+# Unit separator to avoid problems handling files with special characters
+paste -d $'\037' "$before" "$after" | awk -F $'\037' '$1 != $2 { print "mv -vi -- " $1 " " $2 }' >> "$script"
+
+# Edit script to double-check everyting before executing
+"$EDITOR" "$script"
+
+# Execute script
+bash "$script"
+
+rm -f "$before" "$after" "$script"
