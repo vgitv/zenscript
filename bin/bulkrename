@@ -19,7 +19,7 @@ cp "$before" "$after"
 "$EDITOR" "$after"
 
 # Do nothing if the file was not modified
-if diff -q "$before" "$after"; then
+if diff -q "$before" "$after" > /dev/null; then
     echo 'Nothing to do.'
     exit 0
 fi
