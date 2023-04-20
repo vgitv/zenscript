@@ -1,7 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-# exchange key with list of remote hosts
+# Exchange key with list of remote hosts
+# Exemple:
+# exchangekey -i ~/.ssh/id_rsa
 
 here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$here/../lib/logging.sh"
