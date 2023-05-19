@@ -42,13 +42,13 @@ else
         'md')
             echo 'Markdown file detected.'
             echo 'Generating HTML file with pandoc...'
-            cp "${HOME}/.local/src/css_styles/dark-theme.css" "${directory}"
+            cp "${HOME}/.local/src/css_styles/theme.css" "${directory}"
             out="${directory}/autogen-${fileBaseName}.html"
             safeRun --dryrun="${dryrun}" pandoc \
                 -sN \
                 -V colorlinks \
-                -c 'dark-theme.css' \
-                --highlight-style=breezeDark \
+                -c 'theme.css' \
+                --highlight-style=kate \
                 --metadata pagetitle="${item}" \
                 "${filePath}" \
                 -o "${out}"

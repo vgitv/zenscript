@@ -1,6 +1,6 @@
 :root {
-    --bg: #232629;
-    --fg: #ebdbb2;
+    --bg: #ffffff;
+    --fg: #000000;
 }
 
 body {
@@ -86,15 +86,15 @@ h2 {
 
 /* unvisited link */
 a:link {
-    color: #8282ef;
+    color: #1a0dab;
 }
 
 /* visited link */
 a:visited {
-    color: #b795d7;
+    color: #6c00a2;
 }
 
 /* mouse over link */
 a:hover {
-    color: #ffffff;
+    color: var(--fg);
 }
