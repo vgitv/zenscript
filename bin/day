@@ -1,72 +1,65 @@
 #!/usr/bin/python3
-
 import datetime as dt
 import sys
+
 
 def timeformat(delta):
     zero = dt.datetime.combine(dt.datetime.today(), dt.datetime.min.time())
     if delta >= dt.timedelta(0):
         out = zero + delta
-        sign = ''
+        sign = ' '
     else:
         out = zero - delta
         sign = '-'
     return(sign + out.strftime('%H:%M'))
 
-def printrow(delta1, delta2):
-    print('| ', timeformat(delta1), '  | ', timeformat(delta2), '  |')
 
-a_in_am  = sys.argv[1].split('h')
-a_out_am = sys.argv[2].split('h')
-a_in_pm  = sys.argv[3].split('h')
-
-in_am  = dt.timedelta(hours=int(a_in_am[0]), minutes=int(a_in_am[1]))
-out_am = dt.timedelta(hours=int(a_out_am[0]), minutes=int(a_out_am[1]))
-in_pm  = dt.timedelta(hours=int(a_in_pm[0]), minutes=int(a_in_pm[1]))
-
-partiel = in_am - out_am + in_pm
-
-print('.---------------------.')
-print('|', 'DURATION', '|', '  TIME', '  |')
-print('|---------------------|')
-
-duration = dt.timedelta(hours=8, minutes=0)
-time = duration + partiel
-printrow(duration, time)
-
-duration = dt.timedelta(hours=8, minutes=12)
-time = duration + partiel
-printrow(duration, time)
-
-duration = dt.timedelta(hours=8, minutes=15)
-time = duration + partiel
-printrow(duration, time)
-print("'---------------------'")
-
-duration = dt.timedelta(hours=10, minutes=0)
-time = duration + partiel
-print('\n   ATTENTION MAX 10h')
-print('.---------------------.')
-print('|', 'DURATION', '|', '  TIME', '  |')
-print('|---------------------|')
-printrow(duration, time)
-print("'---------------------'")
+def header():
+    print('.-----------------------------------.')
+    print('|   TOTAL   |   DÉPART  |   GAIN    |')
+    print('|-----------------------------------|')
 
 
-now = dt.datetime.combine(dt.date.min, dt.datetime.now().time()) - dt.datetime.min
-print('\nIf you leave now at', timeformat(now))
-duration = now - partiel
-gain = duration - dt.timedelta(hours=8, minutes=12)
-print('DURATION =', timeformat(duration))
-print('GAIN     =', timeformat(gain))
+def footer():
+    print("'-----------------------------------'")
 
-maxReste = dt.timedelta(hours=8, minutes=12) - duration
-if maxReste >= dt.timedelta(0):
-    print('Reste', timeformat(maxReste), 'avant d\'atteindre la journée de 08:12')
 
-maxReste = dt.timedelta(hours=10, minutes=0) - duration
-if maxReste < dt.timedelta(0):
-    print('ATTENTION JOURNÉE SUPÉRIEURE À 10H')
-    print('PARTIR IMMÉDIATEMENT')
-else:
-    print('Reste', timeformat(maxReste), 'avant d\'atteindre la journée de 10:00')
+def printrow(in_out, total=None, departure=None, full=dt.timedelta(hours=8, minutes=12)):
+    """
+    Calcul de l'heure de fin d'une journée (departure) pour atteindre un certain volume horaire (total)
+    ou inversement
+    calcul du volume horaire d'une journée à partir d'une heure de départ présumée.
+    """
+    if total is not None:
+        partial = in_out[0] - in_out[1] + in_out[2]
+        departure = total+partial
+    else:
+        total = in_out[1] - in_out[0] + departure - in_out[2]
+        partial = in_out[0] - in_out[1] + in_out[2]
+    duration = departure - partial
+    gain = duration - full
+    print(f"|  {timeformat(total)}   |  {timeformat(departure)}   |  {timeformat(gain)}   |")
+
+
+def main():
+    a_in_am = sys.argv[1].split('h')
+    a_out_am = sys.argv[2].split('h')
+    a_in_pm = sys.argv[3].split('h')
+
+    in_am = dt.timedelta(hours=int(a_in_am[0]), minutes=int(a_in_am[1]))
+    out_am = dt.timedelta(hours=int(a_out_am[0]), minutes=int(a_out_am[1]))
+    in_pm = dt.timedelta(hours=int(a_in_pm[0]), minutes=int(a_in_pm[1]))
+    in_out = [in_am, out_am, in_pm]
+
+    now = dt.datetime.combine(dt.date.min, dt.datetime.now().time()) - dt.datetime.min
+    print('Time:', timeformat(now))
+
+    header()
+    printrow(in_out, departure=now)
+    printrow(in_out, total=dt.timedelta(hours=8, minutes=12))
+    printrow(in_out, total=dt.timedelta(hours=10, minutes=0))
+    footer()
+
+
+if __name__ == "__main__":
+    main()
