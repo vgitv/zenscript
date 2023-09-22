@@ -1,0 +1,6 @@
+#!/bin/bash
+set -euo pipefail
+
+inputdir="$1"
+regex="${2:-^[0-9]{6}}"
+ls "$inputdir" | grep -Po "$regex" | sort | uniq
