@@ -7,44 +7,57 @@ import sys
 import Pret
 
 
+def get_arguments():
+    args = {
+        "--log": {
+            "help": "Log level",
+            "choices": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+            "default": "INFO",
+        },
+        "--capital": {
+            "help": "Capital",
+            "default": 360000,
+            "type": float,
+        },
+        "--ti": {
+            "help": "Taux intérêts",
+            "default": 4,
+            "type": float,
+        },
+        "--ta": {
+            "help": "Taux assurance",
+            "default": 0.5,
+            "type": float,
+        },
+        "--duration": {
+            "help": "Durée du prêt en années",
+            "default": 20,
+            "type": int,
+        },
+    }
+    parser = argparse.ArgumentParser(description="Main script argument parser.")
+    for key, value in args.items():
+        parser.add_argument(key, **value)
+    return parser.parse_args()
+
+
 def main():
     # parse arguments
-    parser = argparse.ArgumentParser(description='Main script argument parser.')
-    parser.add_argument('--log',
-                        help='Log level',
-                        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-                        default="INFO")
-    parser.add_argument('--capital',
-                        help='capital',
-                        default=360000,
-                        type=float)
-    parser.add_argument('--ti',
-                        help='taux intérêts',
-                        default=0.04,
-                        type=float)
-    parser.add_argument('--ta',
-                        help='taux assurance',
-                        default=0.005,
-                        type=float)
-    parser.add_argument('--duration',
-                        help='durée du prêt en années',
-                        default=25,
-                        type=int)
-    args = parser.parse_args()
+    args = get_arguments()
 
     # Create root logger. In modules: logger=logging.getLogger(__name__) will inherit this root logger.
     logger = logging.getLogger()
     logger.setLevel(args.log)
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
+    handler.setFormatter(logging.Formatter("%(name)s - %(levelname)s - %(message)s"))
     logger.addHandler(handler)
 
-    testPret = Pret.Pret(args.capital, args.ti, args.duration, args.ta)
+    testPret = Pret.Pret(args.capital, args.ti / 100, args.duration, args.ta / 100)
 
     testPret.build()
     print(testPret)
     testPret.graph2()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
