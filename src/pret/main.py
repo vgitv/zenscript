@@ -34,11 +34,6 @@ def get_arguments():
             "default": 20,
             "type": int,
         },
-        "--frais-dossier": {
-            "help": "Frais de dossier",
-            "default": 1000,
-            "type": int,
-        },
     }
     parser = argparse.ArgumentParser(description="Main script argument parser.")
     for key, value in args.items():
@@ -57,7 +52,7 @@ def main():
     handler.setFormatter(logging.Formatter("%(name)s - %(levelname)s - %(message)s"))
     logger.addHandler(handler)
 
-    pret_immo = Pret.Pret(args.capital, args.ti / 100, args.duration, args.total_assurance, args.frais_dossier)
+    pret_immo = Pret.Pret(args.capital, args.ti / 100, args.duration, args.total_assurance)
 
     pret_immo.build()
     print(pret_immo)

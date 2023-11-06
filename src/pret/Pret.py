@@ -26,7 +26,7 @@ def autolabel(rects, xpos="center"):
 
 
 class Pret(object):
-    def __init__(self, capital, T, duree, total_assurance, frais_dossier):
+    def __init__(self, capital, T, duree, total_assurance):
         # ---------------------------------------------------------------------------------------------------
         # attributs paramètres
         # ---------------------------------------------------------------------------------------------------
@@ -36,9 +36,6 @@ class Pret(object):
 
         # reste du capital à payer
         self.m_capital = capital
-
-        # frais dossier
-        self.m_frais_dossier = frais_dossier
 
         # durée remboursement en années
         self.m_duree = duree
@@ -94,7 +91,7 @@ class Pret(object):
         # calcul des totaux
         self.m_totInteret = sum(self.m_partInteret)
         self.m_totRemboursement = (
-            self.m_total_assurance + self.m_totInteret + self.m_capital + self.m_frais_dossier
+            self.m_total_assurance + self.m_totInteret + self.m_capital
         )
 
         # regroupement par années
@@ -113,8 +110,7 @@ class Pret(object):
 
         chaine += "Taux intérêts   : {} %\n"
         chaine += "Total assurance : {} €\n"
-        chaine += "Capital         : {} €\n"
-        chaine += "Frais dossier   : {} €\n"
+        chaine += "Somme empruntée : {} €\n"
         chaine += "Total intérêts  : {} €\n"
         chaine += "Total assurance : {} €\n"
         chaine += "Coût prêt       : {} €\n"
@@ -122,9 +118,8 @@ class Pret(object):
 
         return chaine.format(
             round(self.m_T * 100, 2),
-            round(self.m_total_assurance),
+            round(self.m_total_assurance, 2),
             self.m_capital,
-            self.m_frais_dossier,
             round(self.m_totInteret, 2),
             round(self.m_total_assurance, 2),
             round(self.m_totRemboursement, 2),
