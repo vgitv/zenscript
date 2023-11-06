@@ -211,7 +211,7 @@ class Pret(object):
             self.m_totInteret,
             self.m_totAssurance + self.m_totInteret,
         ]
-        labels = ["capital", "total", "assurance", "intérêts", "coût total prêt"]
+        labels = ["capital", "total", "assurance", "intérêts", "total"]
         p1 = plt.bar(
             range(len(values)), [int(round(elt)) for elt in values], tick_label=labels
         )
@@ -221,10 +221,12 @@ class Pret(object):
         plt.title("Remboursement total")
 
         plt.suptitle(
-            "Pret à taux : Ti = {} % ; Ta = {} %\nMensualité : {}€ sur {} ans".format(
+            "Pret à taux : Ti = {} % ; Ta = {} %\nMensualité : {} + {} ~= {}€ sur {} ans".format(
                 round(self.m_T * 100, 2),
                 round(self.m_Ta * 100, 2),
-                round(self.m_mens + self.m_assurance),
+                round(self.m_mens, 2),
+                round(self.m_assurance, 2),
+                round(self.m_mens + self.m_assurance, 2),
                 self.m_duree,
             )
         )
