@@ -24,14 +24,19 @@ def get_arguments():
             "default": 4,
             "type": float,
         },
-        "--ta": {
-            "help": "Taux assurance",
-            "default": 0.5,
+        "--total-assurance": {
+            "help": "Coût total assurance",
+            "default": 4000,
             "type": float,
         },
         "--duration": {
             "help": "Durée du prêt en années",
             "default": 20,
+            "type": int,
+        },
+        "--frais-dossier": {
+            "help": "Frais de dossier",
+            "default": 1000,
             "type": int,
         },
     }
@@ -52,11 +57,11 @@ def main():
     handler.setFormatter(logging.Formatter("%(name)s - %(levelname)s - %(message)s"))
     logger.addHandler(handler)
 
-    testPret = Pret.Pret(args.capital, args.ti / 100, args.duration, args.ta / 100)
+    pret_immo = Pret.Pret(args.capital, args.ti / 100, args.duration, args.total_assurance, args.frais_dossier)
 
-    testPret.build()
-    print(testPret)
-    testPret.graph2()
+    pret_immo.build()
+    print(pret_immo)
+    pret_immo.graph2()
 
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ def autolabel(rects, xpos="center"):
 
 
 class Pret(object):
-    def __init__(self, capital, T, duree, Ta):
+    def __init__(self, capital, T, duree, total_assurance, frais_dossier):
         # ---------------------------------------------------------------------------------------------------
         # attributs paramètres
         # ---------------------------------------------------------------------------------------------------
@@ -37,11 +37,14 @@ class Pret(object):
         # reste du capital à payer
         self.m_capital = capital
 
+        # frais dossier
+        self.m_frais_dossier = frais_dossier
+
         # durée remboursement en années
         self.m_duree = duree
 
-        # taux d'assurance annuel
-        self.m_Ta = Ta
+        # coût total assurance
+        self.m_total_assurance = total_assurance
 
         # ---------------------------------------------------------------------------------------------------
         # autres attributs
@@ -49,9 +52,6 @@ class Pret(object):
 
         # taux d'intérêts mensuel (taux annuel / 12)
         self.m_t = T / 12
-
-        # taux d'assurance mensuel
-        self.m_ta = Ta / 12
 
         # nombre de mensualités
         self.m_n = duree * 12
@@ -61,7 +61,7 @@ class Pret(object):
         self.m_C[0] = capital
 
         # assurance mensuelle (constante)
-        self.m_assurance = self.m_ta * self.m_capital
+        self.m_assurance = self.m_total_assurance / self.m_duree / 12
 
         # montant (constant) d'une mensualité sans l'assurance (intérêts + capital)
         self.m_mens = (self.m_t * self.m_C[0]) / (1 - (self.m_t + 1) ** (-self.m_n))
@@ -70,9 +70,6 @@ class Pret(object):
         self.m_partCapital = np.repeat(0.0, self.m_n + 1)
         self.m_partInteret = np.repeat(0.0, self.m_n + 1)
         self.m_partAssurance = np.repeat(0.0, self.m_n + 1)
-
-        # somme d'assurance remboursée à la fin du prêt
-        self.m_totAssurance = 0.0
 
         # somme d'intérêts remboursés à la fin du prêt
         self.m_totInteret = 0.0
@@ -95,10 +92,9 @@ class Pret(object):
             self.m_C[mois + 1] = self.m_C[mois] - self.m_partCapital[mois + 1]
 
         # calcul des totaux
-        self.m_totAssurance = sum(self.m_partAssurance)
         self.m_totInteret = sum(self.m_partInteret)
         self.m_totRemboursement = (
-            self.m_totAssurance + self.m_totInteret + self.m_capital
+            self.m_total_assurance + self.m_totInteret + self.m_capital + self.m_frais_dossier
         )
 
         # regroupement par années
@@ -106,29 +102,31 @@ class Pret(object):
             # print(i, "   ", 12*i+1, ':', 12*(i+1)+1, '|', self.m_partInteret[12*i+1:12*(i+1)+1])
             self.m_partAssuranceAnnee[i] = 12 * self.m_assurance
             self.m_partInteretAnnee[i] = sum(
-                self.m_partInteret[12 * i + 1 : 12 * (i + 1) + 1]
+                self.m_partInteret[12 * i + 1: 12 * (i + 1) + 1]
             )
             self.m_partCapitalAnnee[i] = sum(
-                self.m_partCapital[12 * i + 1 : 12 * (i + 1) + 1]
+                self.m_partCapital[12 * i + 1: 12 * (i + 1) + 1]
             )
 
     def __str__(self):
         chaine = ""
 
-        chaine += "Taux intérêts  : {} %\n"
-        chaine += "Taux assurance : {} %\n"
-        chaine += "Capital         : {}\n"
-        chaine += "Total intérêts  : {}\n"
-        chaine += "Total assurance : {}\n"
-        chaine += "Total remboursé : {}\n"
-        chaine += "Mensualitées : {} + {} = {}\n"
+        chaine += "Taux intérêts   : {} %\n"
+        chaine += "Total assurance : {} €\n"
+        chaine += "Capital         : {} €\n"
+        chaine += "Frais dossier   : {} €\n"
+        chaine += "Total intérêts  : {} €\n"
+        chaine += "Total assurance : {} €\n"
+        chaine += "Coût prêt       : {} €\n"
+        chaine += "Mensualitées    : {} + {} = {} €\n"
 
         return chaine.format(
             round(self.m_T * 100, 2),
-            round(self.m_Ta * 100, 2),
+            round(self.m_total_assurance),
             self.m_capital,
+            self.m_frais_dossier,
             round(self.m_totInteret, 2),
-            round(self.m_totAssurance, 2),
+            round(self.m_total_assurance, 2),
             round(self.m_totRemboursement, 2),
             round(self.m_mens, 2),
             round(self.m_assurance, 2),
@@ -207,9 +205,9 @@ class Pret(object):
         values = [
             self.m_capital,
             self.m_totRemboursement,
-            self.m_totAssurance,
+            self.m_total_assurance,
             self.m_totInteret,
-            self.m_totAssurance + self.m_totInteret,
+            self.m_total_assurance + self.m_totInteret,
         ]
         labels = ["capital", "total", "assurance", "intérêts", "total"]
         p1 = plt.bar(
@@ -221,9 +219,9 @@ class Pret(object):
         plt.title("Remboursement total")
 
         plt.suptitle(
-            "Pret à taux : Ti = {} % ; Ta = {} %\nMensualité : {} + {} ~= {}€ sur {} ans".format(
+            "Pret à taux : Ti = {} % ; assurance = {} €\nMensualité : {} + {} ~= {}€ sur {} ans".format(
                 round(self.m_T * 100, 2),
-                round(self.m_Ta * 100, 2),
+                round(self.m_total_assurance),
                 round(self.m_mens, 2),
                 round(self.m_assurance, 2),
                 round(self.m_mens + self.m_assurance, 2),
