@@ -52,7 +52,9 @@ def main():
     handler.setFormatter(logging.Formatter("%(name)s - %(levelname)s - %(message)s"))
     logger.addHandler(handler)
 
-    pret_immo = Pret.Pret(args.capital, args.ti / 100, args.duration, args.total_assurance)
+    pret_immo = Pret.Pret(
+        args.capital, args.ti / 100, args.duration, args.total_assurance
+    )
 
     pret_immo.build()
     print(pret_immo)

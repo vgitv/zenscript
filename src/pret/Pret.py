@@ -90,19 +90,18 @@ class Pret(object):
 
         # calcul des totaux
         self.m_totInteret = sum(self.m_partInteret)
-        self.m_totRemboursement = (
-            self.m_total_assurance + self.m_totInteret + self.m_capital
-        )
+        self.m_cout_pret = self.m_total_assurance + self.m_totInteret
+        self.m_totRemboursement = self.m_cout_pret + self.m_capital
 
         # regroupement par années
         for i in range(self.m_duree):
             # print(i, "   ", 12*i+1, ':', 12*(i+1)+1, '|', self.m_partInteret[12*i+1:12*(i+1)+1])
             self.m_partAssuranceAnnee[i] = 12 * self.m_assurance
             self.m_partInteretAnnee[i] = sum(
-                self.m_partInteret[12 * i + 1: 12 * (i + 1) + 1]
+                self.m_partInteret[12 * i + 1 : 12 * (i + 1) + 1]
             )
             self.m_partCapitalAnnee[i] = sum(
-                self.m_partCapital[12 * i + 1: 12 * (i + 1) + 1]
+                self.m_partCapital[12 * i + 1 : 12 * (i + 1) + 1]
             )
 
     def __str__(self):
@@ -114,6 +113,7 @@ class Pret(object):
         chaine += "Total intérêts  : {} €\n"
         chaine += "Total assurance : {} €\n"
         chaine += "Coût prêt       : {} €\n"
+        chaine += "Total remboursé : {} €\n"
         chaine += "Mensualitées    : {} + {} = {} €\n"
 
         return chaine.format(
@@ -122,6 +122,7 @@ class Pret(object):
             self.m_capital,
             round(self.m_totInteret, 2),
             round(self.m_total_assurance, 2),
+            round(self.m_cout_pret, 2),
             round(self.m_totRemboursement, 2),
             round(self.m_mens, 2),
             round(self.m_assurance, 2),
