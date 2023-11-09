@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+
+input_file="$1"
+
+tmp=$(mktemp)
+echo 'Formatting json...'
+jq . "$input_file" > "$tmp"
+mv "$tmp" "$input_file"
+echo 'All done.'
