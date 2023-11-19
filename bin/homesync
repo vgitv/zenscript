@@ -1,59 +1,141 @@
 #!/bin/bash
 set -euo pipefail
 
-# SAUVEGARDE DU HOME : /!\ ne sauvegarde pas "Vidéos" et "Téléchargements"
-# Script permettant de synchroniser son home avec un dossier de préférence sur un disque externe. La commande
-# rsync ne copie que les fichiers qui ont été modifiés ou qui sont apparus. Ce script permet d'éviter les
-# fausses manipulations (invertion du répertoire source et destination par exemple).
-#
-# Utilisé sans paramètre, ce script copie le home dans un même dossier sur un dique spécifique.
-# Avec comme paramètre le nom du dossier source, ce script sauvegarde le
-# home dans ce dossier (ce qui peut permettre d'effectuer une sauvegarde secondaire à un autre endroit, mais
-# du home uniquement).
-#
-# En vue d'utiliser ce script sans paramètre (c'est sa vocation première), ne pas hésiter à modifier les
-# variables $dd et $dest (nom du disque dur et nom du dossier de synchronisation).
-#
-# DÉTAIL DU PROGRAMME :
-# Sauvegarde les éléments du home SAUF ceux listés dans ./exclude.txt
+
+action="$1"
+target="$(realpath "$2")"
 
 
+# for test purpose
+export CUSTOM_HOME="${HOME}/Téléchargements/test/valentin"
 
-# VARIABLES
-# default disk identifier
-dd='gaston'
+export NC="\033[0m"
 
-# default destination directory
-dest='HOME_BACKUPS'
+export red="\033[0;31m"
+export green="\033[0;32m"
+export orange="\033[0;33m"
+export blue="\033[0;34m"
 
-exclude="${HOME}/.local/etc/homesync/exclude"
-
-
-
-# TRAITEMENT PARAMÈTRE
-if [ $# -eq 0 ]; then
-    # si pas d'arguments nom par défaut
-    backupspath="/media/${USER}/${dd}/${dest}"
-else
-    # sinon le nom du dossier est l'argument
-    backupspath="$1"
-fi
+export bold_red="\033[1;31m"
+export bold_green="\033[1;32m"
+export bold_orange="\033[1;33m"
+export bold_blue="\033[1;34m"
 
 
-
-# COMMANDE PRINCIPALE
-# -a : conserve toutes les infos (droits, date modif...)
-# -r : sauvegarde récursivement (sous dossiers etc)
-# -v : mode verbeux
-# -h : human readable
-# --exclude-from : dossier(s) ignorés
-# --include-from : dossier(s) conservés malgré le exclude
-# --delete       : efface sur backup les fichiers disparus
-cd
-rsync -arvh --exclude-from="${exclude}" --delete "${HOME}" "${backupspath}"
+function log {
+    echo -e "${!1:?}${2}${NC}"
+}
 
 
+function confirm {
+    log orange 'Procéder ? (o/n)'
+    read -r answer
+    if [[ ${answer} != 'o' ]]; then
+        log bold_red 'Annulation.'
+        exit 1
+    fi
+}
 
-# FIN PROGRAMME
-echo -e "\nSaved in ${backupspath}"
-echo 'WELL DONE !!'
+
+function avail_space {
+    df --output=avail -h "$1" | tail -n 1 | grep -oP "[^ ]*"
+}
+
+
+function warn_create_dir {
+    # Affichier un warning si le dossier n'existe pas
+    if [[ ! -d "$1" ]]; then
+        log orange "Attention, le dossier $1 n'existe pas et sera créé."
+    fi
+}
+
+
+function home_sync {
+    # Synchronisation en miroir : le répertoire cible doit être à l'image du
+    # répertoire source. Une suppression de fichier sur la source entraine une
+    # suppression de fichier sur la cible. Attention aux règles d'exclusion, la
+    # volonté étant de gérer les photos différemment, et d'ignorer les fichiers
+    # temporaires.
+    #
+    # NB : les fichiers cachés à la racine du home ne seront pas pris en
+    # compte, en revanche les fichiers cachés dans les sous-dossier le seront.
+    local target_backup="$1/BACKUP_HOME"
+
+    log bold_blue "==> SYNCHRONISATION HOME <=="
+    log blue 'Synchronisation du contenu de :'
+    log blue "  ${CUSTOM_HOME}"
+    log blue 'dans :'
+    log blue "  ${target_backup}"
+    warn_create_dir "$target_backup"
+    confirm
+
+    mkdir -pv "$target_backup"
+
+    # rsync --info=help
+    # PROGRESS   Mention 1) per-file progress or 2) total transfer progress
+    rsync \
+        -arh \
+        --info=progress2 \
+        --exclude="/Images/" \
+        --exclude="/Vidéos/" \
+        --exclude="/Téléchargements/" \
+        --delete \
+        "$CUSTOM_HOME"/* \
+        "$target_backup"
+}
+
+
+function photos_sync {
+    # Synchronisation source vers cible. Pas de suppression sur la cible si le
+    # fichier n'existe plus sur la source. Cela permet de construire un album
+    # avec la totalité des photos sauvegardées sur différentes machines. Le
+    # dossier ~/Images ne doit donc contenir que des photos (stocker les autres
+    # images ailleurs).
+    local target_backup="$1/BACKUP_PHOTOS"
+
+    log bold_blue "==> SYNCHRONISATION PHOTOS <=="
+    log blue 'Synchronisation du contenu de :'
+    log blue "  ${CUSTOM_HOME}/Images"
+    log blue 'dans :'
+    log blue "  ${target_backup}"
+    warn_create_dir "$target_backup"
+    confirm
+
+    mkdir -pv "$target_backup"
+
+    # rsync --info=help
+    # PROGRESS   Mention 1) per-file progress or 2) total transfer progress
+    rsync \
+        -arh \
+        --info=progress2 \
+        "$CUSTOM_HOME"/Images/* \
+        "$target_backup"
+}
+
+
+log orange "Espace libre sur la cible : $(avail_space "$target")"
+echo
+
+case "$action" in
+    '--home')
+        home_sync "$target"
+        ;;
+    '--photos')
+        photos_sync "$target"
+        ;;
+    '--all')
+        home_sync "$target"
+        echo
+        photos_sync "$target"
+        ;;
+    *)
+        log bold_red "Choix invalide ${action}, choisir parmi :"
+        log bold_red '  --home'
+        log bold_red '  --photos'
+        log bold_red '  --all'
+        exit 1
+        ;;
+esac
+
+echo
+log bold_green 'WELL DONE!'
