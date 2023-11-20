@@ -1,10 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-
+# arguments
 action="$1"
 target="$(realpath "$2")"
-
 
 # for test purpose
 export CUSTOM_HOME="${CUSTOM_HOME:-$HOME}"
@@ -71,6 +70,7 @@ function home_sync {
 
     mkdir -pv "$target_backup"
 
+    echo 'Copie en cours...'
     # rsync --info=help
     # PROGRESS   Mention 1) per-file progress or 2) total transfer progress
     rsync \
@@ -82,6 +82,7 @@ function home_sync {
         --delete \
         "$CUSTOM_HOME"/* \
         "$target_backup"
+    echo 'Copie terminée !'
 }
 
 
@@ -103,6 +104,7 @@ function photos_sync {
 
     mkdir -pv "$target_backup"
 
+    echo 'Copie en cours...'
     # rsync --info=help
     # PROGRESS   Mention 1) per-file progress or 2) total transfer progress
     rsync \
@@ -110,11 +112,12 @@ function photos_sync {
         --info=progress2 \
         "$CUSTOM_HOME"/Images/* \
         "$target_backup"
+    echo 'Copie terminée !'
 }
 
 
 if [[ $CUSTOM_HOME != "$HOME" ]]; then
-    log orange "Mode test activé."
+    log orange "Mode test activé. CUSTOM_HOME=${CUSTOM_HOME}"
     confirm
     echo
 fi
@@ -144,4 +147,4 @@ case "$action" in
 esac
 
 echo
-log bold_green 'WELL DONE!'
+log bold_green 'Sauvegarde OK !'
