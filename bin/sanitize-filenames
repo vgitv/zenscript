@@ -18,6 +18,7 @@ sed -i -E \
     -e 's/"$//g' \
     -e 's/[^A-Za-z0-9_\.]/_/g' \
     -e 's/_+/_/g' \
+    -e 's/.*/\L&/g' \
     "$after"
 
 # Unit separator to avoid problems handling files with special characters
