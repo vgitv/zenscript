@@ -31,13 +31,18 @@ if [[ $(wc -l < "$before") -ne $(wc -l < "$after") ]]; then
 fi
 
 # Unit separator to avoid problems handling files with special characters
-paste -d $'\037' "$before" "$after" | awk -F $'\037' '$1 != $2 { print "mv -vi -- " $1 " " $2 }' >> "$script"
+paste -d $'\037' "$before" "$after" | \
+    awk -F $'\037' '$1 != $2 { print "mv -vi -- " $1 " " $2 }' >> "$script"
 
 # Edit script to double-check everyting before executing
 "$EDITOR" "$script"
 
 # Execute script
-bash "$script"
+if [[ $(wc -l < "$script") -gt 0 ]]; then
+    bash "$script"
+else
+    echo 'File cleared, nothing done'
+fi
 
 # clean
 rm "$before" "$after" "$script"
