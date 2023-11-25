@@ -79,6 +79,10 @@ function home_sync {
         --exclude="/Images/" \
         --exclude="/Vidéos/" \
         --exclude="/Téléchargements/" \
+        --exclude=".git/" \
+        --exclude="__pycache__/" \
+        --exclude=".venv/" \
+        --exclude="venv/" \
         --delete \
         "$CUSTOM_HOME"/* \
         "$target_backup"
