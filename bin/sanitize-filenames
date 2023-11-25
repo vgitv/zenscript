@@ -13,6 +13,10 @@ EOF
 ls --quote-name > "$before"
 
 cp "$before" "$after"
+
+# Surrounding quotes needs to be removed and replaced afterwards to facilitate
+# awk comparison
+
 sed -i -E \
     -e 's/^"//g' \
     -e 's/"$//g' \
@@ -28,6 +32,8 @@ sed -i -E \
     -e 's/_\./\./g' \
     -e 's/_+/_/g' \
     -e 's/.*/\L&/g' \
+    -e 's/^/"/g' \
+    -e 's/$/"/g' \
     "$after"
 
 # Unit separator to avoid problems handling files with special characters
@@ -41,7 +47,7 @@ paste -d $'\037' "$before" "$after" | \
 if [[ $(wc -l < "$script") -gt 0 ]]; then
     bash "$script"
 else
-    echo 'File cleared, nothing done'
+    echo 'File cleared, nothing done.'
 fi
 
 rm -f "$before" "$after" "$script"

@@ -41,7 +41,7 @@ paste -d $'\037' "$before" "$after" | \
 if [[ $(wc -l < "$script") -gt 0 ]]; then
     bash "$script"
 else
-    echo 'File cleared, nothing done'
+    echo 'File cleared, nothing done.'
 fi
 
 # clean
