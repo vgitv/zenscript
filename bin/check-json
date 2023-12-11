@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+# Check json syntax in all json files
+
+root_path="$1"
+
+function check_json {
+    local input_json="$1"
+    if jq . "$input_json" > /dev/null; then
+        echo "OK: $input_json"
+    else
+        echo -e "\033[1;31mERROR: ${input_json}\033[0m"
+    fi
+}
+
+export -f check_json
+
+find "$root_path" -type f -name "*.json" -exec bash -c 'check_json $1' shell {} \;
