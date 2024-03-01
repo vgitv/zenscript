@@ -40,7 +40,7 @@ while IFS= read -u 3 -r line; do
     answer="$(echo "$line" | cut -d "$sep" -f 2)"
     echo -n "$question     "
     IFS=" " read -r input
-    while [[ "$input" != "$answer" ]]; do
+    while [[ "${input,,}" != "${answer,,}" ]]; do
         wrong_cpt=$((wrong_cpt+1))
         if [[ "$input" = 'NONE' ]]; then
             echo "The answer was:"
@@ -53,7 +53,7 @@ while IFS= read -u 3 -r line; do
         echo -n "$question     "
         IFS=" " read -r input
     done
-    if [[ "$input" = "$answer" ]]; then
+    if [[ "${input,,}" = "${answer,,}" ]]; then
         right_cpt=$((right_cpt+1))
     fi
 done 3< "$tmp"
