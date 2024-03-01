@@ -1,0 +1,78 @@
+#!/bin/bash
+set -euo pipefail
+
+# Take a quizz based on a CSV file. First fild is the question, second field
+# the answer.
+
+data_file="$1"
+sep="${2:-;}"
+
+export NC="\033[0m"
+
+export blue="\033[1;34m"
+export green="\033[1;32m"
+export orange="\033[1;33m"
+export red="\033[1;31m"
+
+
+function log {
+    local args=()
+    while [[ $1 =~ ^- ]]; do
+        args+=("$1")
+        shift
+    done
+    echo "${args[@]}" -e "${!1:?}${2}${NC}"
+}
+
+
+tmp="$(mktemp)"
+
+shuf "$data_file" > "$tmp"
+
+SECONDS=0
+
+wrong_cpt=0
+right_cpt=0
+
+# -u arg is require here because of the nested read
+while IFS= read -u 3 -r line; do
+    question="$(echo "$line" | cut -d "$sep" -f 1)"
+    answer="$(echo "$line" | cut -d "$sep" -f 2)"
+    echo -n "$question     "
+    IFS=" " read -r input
+    while [[ "$input" != "$answer" ]]; do
+        wrong_cpt=$((wrong_cpt+1))
+        if [[ "$input" = 'NONE' ]]; then
+            echo "The answer was:"
+            log -n green "${question}     ${answer}"
+            echo -n "     (press enter to continue)"
+            read -r
+            break
+        fi
+        log red "Incorrect, Try again! (Give up with 'NONE')"
+        echo -n "$question     "
+        IFS=" " read -r input
+    done
+    if [[ "$input" = "$answer" ]]; then
+        right_cpt=$((right_cpt+1))
+    fi
+done 3< "$tmp"
+
+echo
+
+if [[ $wrong_cpt -ne 0 ]]; then
+    log orange "${wrong_cpt} wrong answer(s)"
+fi
+
+if [[ $right_cpt -ne 0 ]]; then
+    log green "${right_cpt} right answer(s)"
+fi
+
+log -n blue "\nWell done!\nTotal time: "
+if [[ $SECONDS -lt 60 ]]; then
+    log blue "${SECONDS}sec"
+else
+    log blue "$((SECONDS/60))min $((SECONDS%60))sec"
+fi
+
+rm -f "$tmp"
