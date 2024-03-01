@@ -5,7 +5,7 @@ set -euo pipefail
 # the answer.
 
 data_file="$1"
-sep="${2:-;}"
+sep="${2:-,}"
 
 export NC="\033[0m"
 
