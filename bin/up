@@ -7,13 +7,13 @@ function ubuntu_up {
     date
     sudo true
 
-    echo -e '\n# Update...'
-    echo '# apt-get update'
-    sudo apt-get -y update
+    echo
+    figlet Update
+    sudo apt -y update
 
-    echo -e '\n# Upgrade...'
-    echo '# apt-get upgrade'
-    sudo apt-get -y upgrade
+    echo
+    figlet Upgrade
+    sudo apt -y upgrade
 }
 
 function manjaro_up {
