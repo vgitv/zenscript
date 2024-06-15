@@ -17,14 +17,12 @@ function ubuntu_up {
 }
 
 function manjaro_up {
-    set -x
-    sudo pacman -Syyu --noprogressbar --noconfirm
-    set +x
+    figlet -w 120 'Manjaro Upgrade'
+    (set -x; sudo pacman -Syyu --noprogressbar --noconfirm)
 }
 
 log="${XDG_STATE_HOME:-$HOME/.local/state}/up.log"
 distribution="$(lsb_release -a 2> /dev/null | awk '/^Distributor ID:/ { print $3 }')"
-echo -e "Detected distribution: ${distribution}\n"
 
 case "${distribution}" in
     'Ubuntu')
