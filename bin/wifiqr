@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+
+output="${1:-wifi.png}"
+
+echo -n "Wifi UUID: "
+read -r uuid
+echo -n "Wifi password: "
+read -sr password
+qrencode -s 6 -l M -o "${output}" "WIFI:T:WPA;S:${uuid};P:${password};;"
+echo -e "\nOutput file: $(realpath "${output}")"
