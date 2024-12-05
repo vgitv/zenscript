@@ -51,4 +51,5 @@ for host in "$@"; do
     safesync "$user" "$host" "$HOME/.bashrc"
     safesync "$user" "$host" "$HOME/.config/bash"
     safesync "$user" "$host" "$HOME/.config/nvim"
+    safesync "$user" "$host" "$HOME/.local/share/nvim"
 done
