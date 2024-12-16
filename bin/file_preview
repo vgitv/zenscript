@@ -11,7 +11,11 @@ if [[ ! -f "$1" ]]; then
 fi
 
 if command -v batcat > /dev/null 2>&1; then
+    # on ubuntu batcat
     batcat --color=always --style=plain "$1"
+elif command -v bat > /dev/null 2>&1; then
+    # on arch bat
+    bat --color=always --style=plain "$1"
 else
     echo -e '\033[1;33mWARNING: Please install bat\033[0m'
 fi
