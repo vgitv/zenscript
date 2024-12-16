@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+
+# File preview using batcat
+# Take only one file as input, because it's for preview, no concatenate
+# Can be used for lf (terminal file manager)
+
+if [[ ! -f "$1" ]]; then
+    echo -e "\033[1;33mWARNING: '$1' is not a file\033[0m"
+    exit 0
+fi
+
+if command -v batcat > /dev/null 2>&1; then
+    batcat --color=always --style=plain "$1"
+else
+    echo -e '\033[1;33mWARNING: Please install bat\033[0m'
+fi
