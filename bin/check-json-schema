@@ -1,0 +1,30 @@
+import click
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
+from json import load
+
+
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+
+
+@click.command(context_settings=CONTEXT_SETTINGS)
+@click.argument("json_file")
+@click.argument("json_schema")
+def main(json_file, json_schema):
+    print("Check json file: ", json_file)
+    print("Against schema: ", json_schema, "\n")
+    with open(json_file, "r") as f:
+        data = load(f)
+
+    with open(json_schema, "r") as sch:
+        schema = load(sch)
+
+    try:
+        validate(instance=data, schema=schema)
+    except ValidationError as err:
+        print("\x1b[31;20mERROR - schema validation error")
+        print(str(err), "\x1b[0m")
+        exit(1)
+
+if __name__ == "__main__":
+    main()
