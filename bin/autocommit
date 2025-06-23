@@ -7,7 +7,7 @@ set -euo pipefail
 
 
 function log {
-    echo "autocommit: $*"
+    echo -e "=> autocommit: $*"
 }
 
 
@@ -19,17 +19,18 @@ autocommit_msg='Autocommit'
 git add "$(git rev-parse --show-toplevel)"
 
 if git status --porcelain | grep -qE '.'; then
-    if [[ ${last_commit_msg} = 'Autocommit' && ${current_day} = "${last_commit_day}" ]]; then
+    if [[ ${last_commit_msg} = "$autocommit_msg" && ${current_day} = "${last_commit_day}" ]]; then
         log 'Amend last autocommit'
-        git commit -m "$autocommit_msg" --amend --allow-empty
-        log 'Force push commit'
-        git push -f
+        git commit --amend --no-edit --reset-author --allow-empty
+        log 'Pushing commit...'
+        git push --force
     else
         log 'Create a new autocommit'
         git commit -m "$autocommit_msg"
-        log 'Push commit'
+        log 'Pushing commit...'
         git push
     fi
+    log 'Done'
 else
     log 'Nothing to do'
 fi
