@@ -1,0 +1,37 @@
+#!/bin/bash
+set -euo pipefail
+
+FZF_ARGS=(--height=25 --layout=reverse --scrollbar='█')
+REPO_LIST="${XDG_DATA_HOME:-$HOME/.local/share}/repo_list.json"
+
+choice="$(echo -e "update\nclone\nbrowse" | grep -E "^$1")"
+
+case "$choice" in
+    update)
+        default_user="$(git config --global --list | grep 'user.name' | awk -F '=' '{ print $2 }')"
+        echo -n "Github user? (default ${default_user}) "
+        read -r user
+        if [[ -z "$user" ]]; then
+            user="$default_user"
+        fi
+        gh repo list -L 10000 --json=owner,name,description,createdAt,isArchived "$user" | jq . > "$REPO_LIST"
+        ;;
+    clone)
+        repo="$(jq -r '.[] | "\(.owner.login)/\(.name)"' "$REPO_LIST" | fzf "${FZF_ARGS[@]}")"
+        mkdir -p ~/Code
+        repo_basename="$(basename "$repo")"
+        if [[ -d ~/Code/"$repo_basename" ]]; then
+            echo "${repo_basename} already cloned"
+        else
+            git clone "git@github.com:${repo}.git" ~/Code/"$repo_basename"
+        fi
+        ;;
+    browse)
+        repo="$(jq -r '.[] | "\(.owner.login)/\(.name)"' "$REPO_LIST" | fzf "${FZF_ARGS[@]}")"
+        $BROWSER "https://github.com/${repo}"
+        ;;
+    *)
+        echo "Invalid command '$1'"
+        exit 1
+        ;;
+esac
