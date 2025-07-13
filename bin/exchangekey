@@ -6,6 +6,7 @@ set -euo pipefail
 # exchangekey -i ~/.ssh/id_rsa
 
 here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# shellcheck source=/dev/null
 source "$here/../lib/logging.sh"
 
 while [[ $1 =~ ^-- ]]; do

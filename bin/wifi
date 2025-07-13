@@ -11,14 +11,14 @@ elif [[ "${action}" = '--avail' ]]; then
     nmcli d wifi list
 elif [[ "${action}" = '--connect' ]]; then
     wifiInterface=$2
-    nmcli d connect ${wifiInterface}
+    nmcli d connect "${wifiInterface}"
 elif [[ "${action}" = '--disconnect' ]]; then
     wifiInterface=$2
-    nmcli d disconnect ${wifiInterface}
+    nmcli d disconnect "${wifiInterface}"
 elif [[ "${action}" = '--up' ]]; then
     savedWifiCo=$2
-    nmcli c down ${savedWifiCo}
+    nmcli c down "${savedWifiCo}"
 elif [[ "${action}" = '--down' ]]; then
     savedWifiCo=$2
-    nmcli c down ${savedWifiCo}
+    nmcli c down "${savedWifiCo}"
 fi
