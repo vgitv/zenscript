@@ -9,7 +9,12 @@ FZF_ARGS=(--height=25 --layout=reverse)
 
 rootpath="$HOME"/Documents/administratif
 
+echo 'Move files (<Esc> to skip file)'
 for elt in "$@"; do
-    target="$(find "$rootpath" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort | fzf "${FZF_ARGS[@]}" --prompt="Archive ${elt} > ")"
-    mv -iv "$elt" "${rootpath}/${target}/$(date +%Y%m%d)-${elt}"
+    if target="$(find "$rootpath" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort | fzf "${FZF_ARGS[@]}" --prompt="Archive ${elt} > ")"
+    then
+        mv -iv "$elt" "${rootpath}/${target}/$(date +%Y%m%d)-${elt}"
+    else
+        echo "Skip ${elt}"
+    fi
 done
