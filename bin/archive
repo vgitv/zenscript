@@ -13,7 +13,7 @@ echo 'Move files (<Esc> to skip file)'
 for elt in "$@"; do
     if target="$(find "$rootpath" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort | fzf "${FZF_ARGS[@]}" --prompt="Archive ${elt} > ")"
     then
-        mv -iv "$elt" "${rootpath}/${target}/$(date +%Y%m%d)-${elt}"
+        mv -vi -- "$elt" "${rootpath}/${target}/$(date +%Y%m%d)-${elt}"
     else
         echo "Skip ${elt}"
     fi
