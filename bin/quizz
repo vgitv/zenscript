@@ -26,10 +26,11 @@ function log {
 
 
 MAX_WIDTH="$(awk -F "$sep" '{ print length($1) }' "$data_file" | sort -n | tail -n 1)"
+DELIM=' -> '
 
 function ask {
     printf "%-${MAX_WIDTH}s" "$1"
-    printf ' -> '
+    printf '%s' "$DELIM"
 }
 
 tmp="$(mktemp)"
@@ -48,20 +49,24 @@ while IFS= read -u 3 -r line; do
     answer="$(echo "$line" | cut -d "$sep" -f 2)"
     ask "${question}"
     IFS=" " read -r input
+    delim_width="${#DELIM}"
+    input_width="${#input}"
+    width="$((MAX_WIDTH+delim_width+input_width))"
     if [[ ${input,,} != "${answer,,}" ]]; then
         wrong_cpt=$((wrong_cpt+1))
-        wrong_items+=("$(printf "%-${MAX_WIDTH}s" "$question") -> ${answer}")
+        wrong_items+=("$(printf "%-${MAX_WIDTH}s" "$question")${DELIM}${answer}")
     else
+        log green "\033[1A\033[${width}C  OK"
         right_cpt=$((right_cpt+1))
     fi
     while [[ ${input,,} != "${answer,,}" ]]; do
         if [[ -z "$input" ]]; then
-            log -n green "Solution: ${question} -> ${answer}"
+            log -n orange "\033[1A\033[$((MAX_WIDTH+delim_width))C${answer}"
             echo -n " (press enter to continue)"
             read -r
             break
         fi
-        log red "Incorrect, Try again! (Leave empty to get the solution)"
+        log red "\033[1A\033[${width}C  Incorrect, try again! (Leave empty to get the solution)"
         ask "$question"
         IFS=" " read -r input
     done
