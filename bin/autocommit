@@ -23,7 +23,7 @@ if git status --porcelain | grep -qE '.'; then
         log 'Amend last autocommit'
         git commit --amend --no-edit --reset-author --allow-empty
         log 'Pushing commit...'
-        git push --force
+        git push --force-with-lease --force-if-includes
     else
         log 'Create a new autocommit'
         git commit -m "$autocommit_msg"
