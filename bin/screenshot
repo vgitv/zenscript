@@ -1,4 +1,4 @@
 #!/bin/bash
 set -euo pipefail
 
-import "${DOWNLOADS}/screen_$(date '+%Y%m%d_%Hh%Mm%Ss').png"
+import "${DOWNLOADS?}/screen_$(date '+%Y%m%d_%Hh%Mm%Ss').png"
