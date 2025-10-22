@@ -1,0 +1,55 @@
+#!/bin/bash
+set -euo pipefail
+
+# Usage:
+# klaunch [--width=X] [--height=Y] -- COMMAND ...
+#
+# Examples:
+# klaunch yazi
+# klaunch --width=1000 --height=500 -- htop
+
+# Default values
+width=500
+height=800
+
+# Options
+while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
+    case $1 in
+        --width=*)
+            width="${1#*=}"
+            shift
+            ;;
+        --height=*)
+            height="${1#*=}"
+            shift
+            ;;
+        *)
+            # notify-send -t 1000 "$0" "Unknown option $1"
+            echo "Unknown option $1"
+            exit 1
+            ;;
+    esac
+done
+
+[[ "$1" == '--' ]] && shift
+
+# Primary monitor resolution
+primary_monitor_resolution="$(xrandr | grep -oE 'primary [0-9]+x[0-9]+' | awk '{ print $2 }')"
+primary_monitor_width="${primary_monitor_resolution%x*}"
+primary_monitor_height="${primary_monitor_resolution#*x}"
+
+# Center window
+x_position=$(((primary_monitor_width-width)/2))
+y_position=$(((primary_monitor_height-height)/2))
+
+# Fire command
+kitty \
+    -o "initial_window_width=${width}" \
+    -o "initial_window_height=${height}" \
+    -o "background=#1e293b" \
+    -o "foreground=#c5d4fc" \
+    -o 'hide_window_decorations yes' \
+    --position="${x_position}x${y_position}" \
+    --title="$*" \
+    -- \
+    "$@"
