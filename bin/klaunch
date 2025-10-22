@@ -1,8 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
+# Description:
+# Launch a programm into a Kitty window.
+#
 # Usage:
-# klaunch [--width=X] [--height=Y] -- COMMAND ...
+# klaunch [--width=X] [--height=Y] [--bg='#xxxxxx'] [--fg='#yyyyyy'] [any_kitty_opt] -- COMMAND ...
 #
 # Examples:
 # klaunch yazi
@@ -11,6 +14,10 @@ set -euo pipefail
 # Default values
 width=500
 height=800
+bg='#1e293b'
+fg='#c5d4fc'
+
+KITTY_OPT=()
 
 # Options
 while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
@@ -23,10 +30,17 @@ while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
             height="${1#*=}"
             shift
             ;;
+        --bg=*)
+            bg="${1#*=}"
+            shift
+            ;;
+        --fg=*)
+            fg="${1#*=}"
+            shift
+            ;;
         *)
-            # notify-send -t 1000 "$0" "Unknown option $1"
-            echo "Unknown option $1"
-            exit 1
+            KITTY_OPT+=("$1")
+            shift
             ;;
     esac
 done
@@ -46,10 +60,11 @@ y_position=$(((primary_monitor_height-height)/2))
 kitty \
     -o "initial_window_width=${width}" \
     -o "initial_window_height=${height}" \
-    -o "background=#1e293b" \
-    -o "foreground=#c5d4fc" \
+    -o "background=${bg}" \
+    -o "foreground=${fg}" \
     -o 'hide_window_decorations yes' \
     --position="${x_position}x${y_position}" \
     --title="$*" \
+    "${KITTY_OPT[@]}" \
     -- \
     "$@"
