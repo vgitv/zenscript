@@ -8,8 +8,9 @@ set -euo pipefail
 # klaunch [--width=X] [--height=Y] [--bg='#xxxxxx'] [--fg='#yyyyyy'] [any_kitty_opt] -- COMMAND ...
 #
 # Examples:
-# klaunch yazi
+# klaunch -- htop
 # klaunch --width=1000 --height=500 -- htop
+# klaunch -o window_padding_width=30 -- htop
 
 # Default values
 width=500
@@ -20,7 +21,7 @@ fg='#c5d4fc'
 KITTY_OPT=()
 
 # Options
-while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
+while [[ $# -gt 0 && $1 != '--' ]]; do
     case $1 in
         --width=*)
             width="${1#*=}"
@@ -45,7 +46,13 @@ while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
     esac
 done
 
-[[ "$1" == '--' ]] && shift
+if [[ $# -eq 0 ]]; then
+    echo 'ERROR: klaunch options and command must be separated by "--". Example: "klaunch -- htop"'
+    exit 1
+fi
+
+# Shift the remaining '--' token
+shift
 
 # Primary monitor resolution
 primary_monitor_resolution="$(xrandr | grep -oE 'primary [0-9]+x[0-9]+' | awk '{ print $2 }')"
@@ -63,8 +70,8 @@ kitty \
     -o "background=${bg}" \
     -o "foreground=${fg}" \
     -o 'hide_window_decorations yes' \
+    -o 'window_padding_width=10' \
     --position="${x_position}x${y_position}" \
-    --title="$*" \
     "${KITTY_OPT[@]}" \
     -- \
     "$@"
