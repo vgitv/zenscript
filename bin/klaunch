@@ -55,7 +55,14 @@ fi
 shift
 
 # Primary monitor resolution
-primary_monitor_resolution="$(xrandr | grep -oE 'primary [0-9]+x[0-9]+' | awk '{ print $2 }')"
+connected_monitors="$(xrandr --current | grep ' connected ')"
+if [[ $(wc -l <<< "$connected_monitors") -gt 1 ]]; then
+    primary_monitor_resolution="$(grep -oE ' primary [0-9]+x[0-9]+' <<< "$connected_monitors" | awk '{ print $2 }')"
+else
+    primary_monitor_resolution="$(grep -oE '[0-9]+x[0-9]+' <<< "$connected_monitors")"
+fi
+
+# Monitor width and height
 primary_monitor_width="${primary_monitor_resolution%x*}"
 primary_monitor_height="${primary_monitor_resolution#*x}"
 
