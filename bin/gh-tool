@@ -27,7 +27,7 @@ case "$choice" in
         fi
         ;;
     browse)
-        repo="$(jq -r '.[] | "\(.owner.login)/\(.name)"' "$REPO_LIST" | fzf "${FZF_ARGS[@]}")"
+        repo="$(jq -r '.[] | "\(.isArchived) \(.owner.login)/\(.name)"' "$REPO_LIST" | sed -E -e 's/^true/ /' -e 's/false/ /' | fzf "${FZF_ARGS[@]}" | awk '{ print $2 }')"
         $BROWSER "https://github.com/${repo}"
         ;;
     *)
