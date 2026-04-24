@@ -11,7 +11,6 @@ str2='  '
 # standard and high intensity colors
 for i in {0..15}; do
     printf "%4d" "$i"
-    [[ "${displayEscape}" = '1' ]] && printf "%16s" ' \x1b[38;5;'"$i"'m '
     printf "\x1b[38;5;%sm${str1}\e[0m" "$i"
     printf "\x1b[48;5;%sm${str2}\e[0m" "$i"
     if [[ $i -eq 7 ]]; then
@@ -38,7 +37,6 @@ done
 # shades of grey
 for i in {232..255}; do
     printf "%4d" "$i"
-    [[ "${displayEscape}" = '1' ]] && printf "%16s" ' \x1b[38;5;'"$i"'m '
     printf "\x1b[38;5;%sm${str1}\e[0m" "$i"
     printf "\x1b[48;5;%sm${str2}\e[0m" "$i"
     if (( (i - 231) % 8 == 0 )); then
