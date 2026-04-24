@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+
+
+CURRENT_NVIM_VERSION="$(nvim --version | grep -oP 'v\d+\.\d+\.\d+')"
+URL="$(curl -s 'https://api.github.com/repos/neovim/neovim/releases/latest' | jq -r '.assets[].browser_download_url' | grep -E '/nvim-linux-x86_64\.appimage$')"
+LATEST_NVIM_VERSION="$(echo "$URL" | grep -oP 'v\d+\.\d+\.\d+')"
+NVIM_BIN='/usr/local/bin/nvim'
+
+echo "Current nvim version: $CURRENT_NVIM_VERSION"
+echo "Latest nvim version:  $LATEST_NVIM_VERSION"
+
+if [[ "$CURRENT_NVIM_VERSION" == "$LATEST_NVIM_VERSION" ]]; then
+    echo 'Nvim is up to date, nothing to do'
+    exit 0
+fi
+
+# Confirm
+echo -n "Install nvim from ${URL}? (y/n) "
+read -r ANSWER
+if [[ $ANSWER != y ]]; then
+    echo 'Nothing done'
+    exit 1
+fi
+
+# Install
+echo -e "Install new nvim version $LATEST_NVIM_VERSION"
+sudo rm -f "$NVIM_BIN"
+sudo curl -L "$URL" -o "$NVIM_BIN"
+sudo chown root:root "$NVIM_BIN"
+sudo chmod 755 "$NVIM_BIN"
+
+echo "Nvim updated to $LATEST_NVIM_VERSION"

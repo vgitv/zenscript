@@ -1,36 +1,23 @@
-#!/bin/bash
-set -euo pipefail
+#!/bin/zsh
+emulate -L zsh
+setopt no_unset pipe_fail err_exit err_return warn_create_global
 
 # Autocommit and push to repository, when commit description is not important.
 # Usage:
 # autocommit
 
 
-function log {
-    echo -e "=> autocommit: $*"
-}
-
-
-last_commit_msg="$(git log -n 1 --format=format:'%s')"
-last_commit_day="$(git log -n 1 --format=format:'%as')"
-current_day="$(date -Idate)"
-autocommit_msg='Autocommit'
+if git remote -v | grep -vqE '(vmacp|vgitv)'; then
+    print 'No autocommit if remote is not personnal account'
+    exit 1
+fi
 
 git add "$(git rev-parse --show-toplevel)"
 
 if git status --porcelain | grep -qE '.'; then
-    if [[ ${last_commit_msg} = "$autocommit_msg" && ${current_day} = "${last_commit_day}" ]]; then
-        log 'Amend last autocommit'
-        git commit --amend --no-edit --reset-author --allow-empty
-        log 'Pushing commit...'
-        git push --force-with-lease --force-if-includes
-    else
-        log 'Create a new autocommit'
-        git commit -m "$autocommit_msg"
-        log 'Pushing commit...'
-        git push
-    fi
-    log 'Done'
+    git commit -m "Autocommit"
+    git push
+    print 'Commit pushed'
 else
-    log 'Nothing to do'
+    print 'Nothing to do'
 fi
