@@ -3,7 +3,8 @@ set -euo pipefail
 
 
 CURRENT_NVIM_VERSION="$(nvim --version | grep -oP 'v\d+\.\d+\.\d+')"
-URL="$(curl -s 'https://api.github.com/repos/neovim/neovim/releases/latest' | jq -r '.assets[].browser_download_url' | grep -E '/nvim-linux-x86_64\.appimage$')"
+# Do not use appimage because it cant handle man pages
+URL="$(curl -s 'https://api.github.com/repos/neovim/neovim/releases/latest' | jq -r '.assets[].browser_download_url' | grep -E '/nvim-linux-x86_64\.tar\.gz$')"
 LATEST_NVIM_VERSION="$(echo "$URL" | grep -oP 'v\d+\.\d+\.\d+')"
 NVIM_BIN='/usr/local/bin/nvim'
 
@@ -26,8 +27,11 @@ fi
 # Install
 echo -e "Install new nvim version $LATEST_NVIM_VERSION"
 sudo rm -f "$NVIM_BIN"
-sudo curl -L "$URL" -o "$NVIM_BIN"
+sudo curl -L "$URL" -o /tmp/nvim-linux-x86_64.tar.gz
+tar -C /tmp -zxf /tmp/nvim-linux-x86_64.tar.gz
+sudo mv /tmp/nvim-linux-x86_64/bin/nvim "$NVIM_BIN"
 sudo chown root:root "$NVIM_BIN"
 sudo chmod 755 "$NVIM_BIN"
+sudo rm -rf /tmp/nvim-linux-x86_64.tar.gz /tmp/nvim-linux-x86_64
 
 echo "Nvim updated to $LATEST_NVIM_VERSION"
