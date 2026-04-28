@@ -26,12 +26,11 @@ fi
 
 # Install
 echo -e "Install new nvim version $LATEST_NVIM_VERSION"
-sudo rm -f "$NVIM_BIN"
-sudo curl -L "$URL" -o /tmp/nvim-linux-x86_64.tar.gz
-tar -C /tmp -zxf /tmp/nvim-linux-x86_64.tar.gz
-sudo mv /tmp/nvim-linux-x86_64/bin/nvim "$NVIM_BIN"
-sudo chown root:root "$NVIM_BIN"
-sudo chmod 755 "$NVIM_BIN"
-sudo rm -rf /tmp/nvim-linux-x86_64.tar.gz /tmp/nvim-linux-x86_64
+sudo rm -rf "$NVIM_BIN" /opt/nvim-linux-x86_64
+curl -L "$URL" -o /tmp/nvim-linux-x86_64.tar.gz
+sudo tar -C /opt -zxf /tmp/nvim-linux-x86_64.tar.gz
+sudo chown -R root:root /opt/nvim-linux-x86_64
+sudo ln -s /opt/nvim-linux-x86_64/bin/nvim "$NVIM_BIN"
+sudo rm -f /tmp/nvim-linux-x86_64.tar.gz
 
 echo "Nvim updated to $LATEST_NVIM_VERSION"
