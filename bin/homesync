@@ -59,12 +59,8 @@ mkdir -pv "$BACKUP_HOME" "$BACKUP_PICS"
 
 
 log info "Sync home"
-# Synchronisation en miroir : le répertoire cible doit être à l'image du
-# répertoire source. Une suppression de fichier sur la source entraine une
-# suppression de fichier sur la cible. Attention aux règles d'exclusion, la
-# volonté étant de gérer les photos différemment, et d'ignorer les fichiers
-# temporaires.
-#
+
+# Mirror backup - source and target should match exactly
 # NB : les fichiers cachés à la racine du home ne seront pas pris en
 # compte, en revanche les fichiers cachés dans les sous-dossier le seront.
 rsync \
@@ -72,8 +68,9 @@ rsync \
     --human-readable \
     --info=progress2 \
     --exclude="/Images/" \
-    --exclude="/Vidéos/" \
+    --exclud="/Public/" \
     --exclude="/Téléchargements/" \
+    --exclude="/Vidéos/" \
     --exclude=".git/" \
     --exclude="__pycache__/" \
     --exclude=".venv/" \
