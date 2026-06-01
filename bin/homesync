@@ -68,7 +68,7 @@ rsync \
     --human-readable \
     --info=progress2 \
     --exclude="/Images/" \
-    --exclud="/Public/" \
+    --exclude="/Public/" \
     --exclude="/Téléchargements/" \
     --exclude="/Vidéos/" \
     --exclude=".git/" \
