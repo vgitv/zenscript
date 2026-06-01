@@ -17,7 +17,7 @@ function log {
 
 log info 'Checks'
 
-if [[ -n "$HOMESYNC_CUSTOM_HOME" ]]; then
+if [[ -n "${HOMESYNC_CUSTOM_HOME:-}" ]]; then
     log warning "test mode: HOMESYNC_CUSTOM_HOME is set to ${HOMESYNC_CUSTOM_HOME}"
 fi
 
