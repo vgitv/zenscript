@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+# DESCRIPTION - Backup home directory
+# SYNOPSIS - homesync <external_disk_path>
+# TEST - HOMESYNC_CUSTOM_HOME=/tmp/home homesync /tmp/save
+
 # Backup target directory
 TARGET="$1"
 
@@ -21,12 +25,11 @@ if [[ -n "${HOMESYNC_CUSTOM_HOME:-}" ]]; then
     log warning "test mode: HOMESYNC_CUSTOM_HOME is set to ${HOMESYNC_CUSTOM_HOME}"
 fi
 
-# Source directories
-# HOMESYNC_CUSTOM_HOME can be used for test purpose
+# Source directories - Special variable can be used for test purpose
 SOURCE_HOME="${HOMESYNC_CUSTOM_HOME:-$HOME}"
 SOURCE_PICS="${HOMESYNC_CUSTOM_HOME:-$HOME}/Images"
 
-# Backup directories
+# Destination backup directories
 BACKUP_HOME="${TARGET}/BACKUP_HOME"
 BACKUP_PICS="${TARGET}/BACKUP_PHOTOS"
 
@@ -58,11 +61,8 @@ fi
 mkdir -pv "$BACKUP_HOME" "$BACKUP_PICS"
 
 
+# Mirror backup - Source and target should match exactly
 log info "Sync home"
-
-# Mirror backup - source and target should match exactly
-# NB : les fichiers cachés à la racine du home ne seront pas pris en
-# compte, en revanche les fichiers cachés dans les sous-dossier le seront.
 rsync \
     --archive \
     --human-readable \
@@ -81,12 +81,8 @@ rsync \
 echo 'Done'
 
 
+# Source to destination backup - No deletion on the receiving side
 log info "Sync pictures"
-# Synchronisation source vers cible. Pas de suppression sur la cible si le
-# fichier n'existe plus sur la source. Cela permet de construire un album
-# avec la totalité des photos sauvegardées sur différentes machines. Le
-# dossier ~/Images ne doit donc contenir que des photos (stocker les autres
-# images ailleurs).
 rsync \
     --archive \
     --human-readable \
