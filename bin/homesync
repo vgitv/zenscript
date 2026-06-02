@@ -15,14 +15,14 @@ function log {
     color['info']='\033[1;32m'
     color['warning']='\033[1;33m'
     color['error']='\033[1;31m'
-    echo -e "${color[$level]}$(date -Iminutes) - ${level^^} - $*\033[0m"
+    echo -e "${color[$level]}$(date '+%Y-%m-%d %H:%M:%S') - ${level^^} - $*\033[0m"
 }
 
 
 log info 'Checks'
 
 if [[ -n "${HOMESYNC_CUSTOM_HOME:-}" ]]; then
-    log warning "test mode: HOMESYNC_CUSTOM_HOME is set to ${HOMESYNC_CUSTOM_HOME}"
+    log warning "test mode: custom home directory is set to ${HOMESYNC_CUSTOM_HOME}"
 fi
 
 # Source directories - Special variable can be used for test purpose
@@ -40,8 +40,8 @@ fi
 
 echo "Available disk space on target: $(df --output=avail -h "$1" | tail -n 1 | grep -oP '[^ ]*')"
 
-echo -e "==> Sync ${SOURCE_HOME}\n    into ${BACKUP_HOME}"
-echo -e "==> Sync ${SOURCE_PICS}\n    into ${BACKUP_PICS}"
+echo -e "Sync ${SOURCE_HOME}/*\n  to ${BACKUP_HOME}"
+echo -e "Sync ${SOURCE_PICS}/*\n  to ${BACKUP_PICS}"
 
 if [[ ! -d "$BACKUP_HOME" ]]; then
     log warning "Directory ${BACKUP_HOME} will be created"
@@ -54,7 +54,7 @@ fi
 echo -n "Proceed? (y/n) "
 read -r answer
 if [[ ${answer} != 'y' ]]; then
-    log error 'Cancel operations - nothing done'
+    log error 'Cancel operations, nothing done'
     exit 1
 fi
 
