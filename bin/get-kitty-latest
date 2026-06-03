@@ -1,0 +1,46 @@
+#!/bin/bash
+set -euo pipefail
+
+if command -v kitty > /dev/null 2>&1; then
+    CURRENT_KITTY_VERSION="$(kitty --version | grep -oP '\d+\.\d+\.\d+')"
+else
+    CURRENT_KITTY_VERSION=NONE
+fi
+
+LATEST_KITTY_VERSION="$(curl -s 'https://api.github.com/repos/kovidgoyal/kitty/releases/latest' | jq -r '.assets[].browser_download_url' | head -n 1 | grep -oP 'v\d+\.\d+\.\d+')"
+
+echo "Current Kitty version: v$CURRENT_KITTY_VERSION"
+echo "Latest Kitty version:  $LATEST_KITTY_VERSION"
+
+if [[ "v${CURRENT_KITTY_VERSION}" = "$LATEST_KITTY_VERSION" ]]; then
+    echo 'Kitty is up to date, nothing to do'
+    exit 0
+fi
+
+# Confirm
+echo -n "Install latest Kitty version? (y/n) "
+read -r ANSWER
+if [[ $ANSWER != y ]]; then
+    echo 'Nothing done'
+    exit 1
+fi
+
+# Install
+sudo true
+
+# launch=n in order to avoid the installer to execute kitty (installer argument)
+curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
+
+echo "Install new Kitty version $LATEST_KITTY_VERSION"
+sudo rm -rf /usr/local/bin/kitty /opt/kitty.app
+sudo mv ~/.local/kitty.app /opt
+sudo chown -R root:root /opt/kitty.app
+sudo chmod -R 755 /opt/kitty.app
+sudo ln -s /opt/kitty.app/bin/kitty /usr/local/bin/kitty
+
+DEFAULT_CONFIG="$HOME/.config/kitty/default-${LATEST_KITTY_VERSION}.conf"
+/usr/local/bin/kitty +runpy 'from kitty.config import *; print(commented_out_default_config())' > "$DEFAULT_CONFIG"
+
+echo "Kitty updated to $LATEST_KITTY_VERSION"
+kitty --version
+echo "You should look for changes in the default configuration generated here: ${DEFAULT_CONFIG}"
