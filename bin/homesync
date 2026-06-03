@@ -40,8 +40,8 @@ fi
 
 echo "Available disk space on target: $(df --output=avail -h "$1" | tail -n 1 | grep -oP '[^ ]*')"
 
-echo -e "Sync ${SOURCE_HOME}/*\n  to ${BACKUP_HOME}"
-echo -e "Sync ${SOURCE_PICS}/*\n  to ${BACKUP_PICS}"
+echo -e "> Sync ${SOURCE_HOME}/*\n  into ${BACKUP_HOME}"
+echo -e "> Sync ${SOURCE_PICS}/*\n  into ${BACKUP_PICS}"
 
 if [[ ! -d "$BACKUP_HOME" ]]; then
     log warning "Directory ${BACKUP_HOME} will be created"
