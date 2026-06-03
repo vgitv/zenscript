@@ -1,154 +1,95 @@
 #!/bin/bash
 set -euo pipefail
 
-# arguments
-action="$1"
-target="$(realpath "$2")"
+# DESCRIPTION - Backup home directory
+# SYNOPSIS - homesync <external_disk_path>
+# TEST - HOMESYNC_CUSTOM_HOME=/tmp/home homesync /tmp/save
 
-# for test purpose
-export CUSTOM_HOME="${CUSTOM_HOME:-$HOME}"
-
-export NC="\033[0m"
-
-export red="\033[0;31m"
-export green="\033[0;32m"
-export orange="\033[0;33m"
-export blue="\033[0;34m"
-
-export bold_red="\033[1;31m"
-export bold_green="\033[1;32m"
-export bold_orange="\033[1;33m"
-export bold_blue="\033[1;34m"
+# Backup target directory
+TARGET="$1"
 
 
 function log {
-    echo -e "${!1:?}${2}${NC}"
+    local level="$1" && shift
+    declare -A color
+    color['info']='\033[1;32m'
+    color['warning']='\033[1;33m'
+    color['error']='\033[1;31m'
+    echo -e "${color[$level]}$(date '+%Y-%m-%d %H:%M:%S') - ${level^^} - $*\033[0m"
 }
 
 
-function confirm {
-    echo -n "$* (o/n) "
-    read -r answer
-    if [[ ${answer} != 'o' ]]; then
-        log bold_red 'Annulation.'
-        exit 1
-    fi
-}
+log info 'Checks'
 
-
-function avail_space {
-    df --output=avail -h "$1" | tail -n 1 | grep -oP "[^ ]*"
-}
-
-
-function warn_create_dir {
-    # Affichier un warning si le dossier n'existe pas
-    if [[ ! -d "$1" ]]; then
-        log orange "Attention, le dossier $1 n'existe pas et sera créé."
-    fi
-}
-
-
-function home_sync {
-    # Synchronisation en miroir : le répertoire cible doit être à l'image du
-    # répertoire source. Une suppression de fichier sur la source entraine une
-    # suppression de fichier sur la cible. Attention aux règles d'exclusion, la
-    # volonté étant de gérer les photos différemment, et d'ignorer les fichiers
-    # temporaires.
-    #
-    # NB : les fichiers cachés à la racine du home ne seront pas pris en
-    # compte, en revanche les fichiers cachés dans les sous-dossier le seront.
-    local target_backup="$1/BACKUP_HOME"
-
-    log bold_blue "==> SYNCHRONISATION HOME <=="
-    log blue 'Synchronisation du contenu de :'
-    log blue "  ${CUSTOM_HOME}/*"
-    log blue 'dans :'
-    log blue "  ${target_backup}"
-    warn_create_dir "$target_backup"
-    confirm 'Procéder à la copie ?'
-
-    mkdir -pv "$target_backup"
-
-    echo 'Copie en cours...'
-    # rsync --info=help
-    # PROGRESS   Mention 1) per-file progress or 2) total transfer progress
-    rsync \
-        -arh \
-        --info=progress2 \
-        --exclude="/Images/" \
-        --exclude="/Vidéos/" \
-        --exclude="/Téléchargements/" \
-        --exclude=".git/" \
-        --exclude="__pycache__/" \
-        --exclude=".venv/" \
-        --exclude="venv/" \
-        --delete \
-        "$CUSTOM_HOME"/* \
-        "$target_backup"
-    echo 'Copie terminée !'
-}
-
-
-function photos_sync {
-    # Synchronisation source vers cible. Pas de suppression sur la cible si le
-    # fichier n'existe plus sur la source. Cela permet de construire un album
-    # avec la totalité des photos sauvegardées sur différentes machines. Le
-    # dossier ~/Images ne doit donc contenir que des photos (stocker les autres
-    # images ailleurs).
-    local target_backup="$1/BACKUP_PHOTOS"
-
-    log bold_blue "==> SYNCHRONISATION PHOTOS <=="
-    log blue 'Synchronisation du contenu de :'
-    log blue "  ${CUSTOM_HOME}/Images/*"
-    log blue 'dans :'
-    log blue "  ${target_backup}"
-    warn_create_dir "$target_backup"
-    confirm 'Procéder à la copie ?'
-
-    mkdir -pv "$target_backup"
-
-    echo 'Copie en cours...'
-    # rsync --info=help
-    # PROGRESS   Mention 1) per-file progress or 2) total transfer progress
-    rsync \
-        -arh \
-        --info=progress2 \
-        "$CUSTOM_HOME"/Images/* \
-        "$target_backup"
-    echo 'Copie terminée !'
-}
-
-
-if [[ $CUSTOM_HOME != "$HOME" ]]; then
-    log orange "Mode test activé. CUSTOM_HOME=${CUSTOM_HOME}"
-    confirm 'Procéder ?'
-    echo
+if [[ -n "${HOMESYNC_CUSTOM_HOME:-}" ]]; then
+    log warning "test mode: custom home directory is set to ${HOMESYNC_CUSTOM_HOME}"
 fi
 
-log orange "Espace libre sur la cible : $(avail_space "$target")"
-echo
+# Source directories - Special variable can be used for test purpose
+SOURCE_HOME="${HOMESYNC_CUSTOM_HOME:-$HOME}"
+SOURCE_PICS="${HOMESYNC_CUSTOM_HOME:-$HOME}/Images"
 
-case "$action" in
-    '--home')
-        home_sync "$target"
-        ;;
-    '--photos')
-        photos_sync "$target"
-        ;;
-    '--all')
-        home_sync "$target"
-        echo
-        photos_sync "$target"
-        ;;
-    *)
-        log bold_red "Choix invalide ${action}, choisir parmi :"
-        log bold_red '  --home'
-        log bold_red '  --photos'
-        log bold_red '  --all'
-        exit 1
-        ;;
-esac
+# Destination backup directories
+BACKUP_HOME="${TARGET}/BACKUP_HOME"
+BACKUP_PICS="${TARGET}/BACKUP_PHOTOS"
 
-echo
-log bold_green 'Sauvegarde OK !'
+if [[ ! -d "$TARGET" ]]; then
+    log error "Target directory ${TARGET} should exist"
+    exit 1
+fi
+
+echo "Available disk space on target: $(df --output=avail -h "$1" | tail -n 1 | grep -oP '[^ ]*')"
+
+echo -e "> Sync ${SOURCE_HOME}/*\n  into ${BACKUP_HOME}"
+echo -e "> Sync ${SOURCE_PICS}/*\n  into ${BACKUP_PICS}"
+
+if [[ ! -d "$BACKUP_HOME" ]]; then
+    log warning "Directory ${BACKUP_HOME} will be created"
+fi
+
+if [[ ! -d "$BACKUP_PICS" ]]; then
+    log warning "Directory ${BACKUP_PICS} will be created"
+fi
+
+echo -n "Proceed? (y/n) "
+read -r answer
+if [[ ${answer} != 'y' ]]; then
+    log error 'Cancel operations, nothing done'
+    exit 1
+fi
+
+mkdir -pv "$BACKUP_HOME" "$BACKUP_PICS"
+
+
+# Mirror backup - Source and target should match exactly
+log info "Sync home"
+rsync \
+    --archive \
+    --human-readable \
+    --info=progress2 \
+    --exclude="/Images/" \
+    --exclude="/Public/" \
+    --exclude="/Téléchargements/" \
+    --exclude="/Vidéos/" \
+    --exclude=".git/" \
+    --exclude="__pycache__/" \
+    --exclude=".venv/" \
+    --exclude="venv/" \
+    --delete \
+    "$SOURCE_HOME"/* \
+    "$BACKUP_HOME"
+echo 'Done'
+
+
+# Source to destination backup - No deletion on the receiving side
+log info "Sync pictures"
+rsync \
+    --archive \
+    --human-readable \
+    --info=progress2 \
+    "$SOURCE_PICS"/* \
+    "$BACKUP_PICS"
+echo 'Done'
+
+
+log info 'All done!'

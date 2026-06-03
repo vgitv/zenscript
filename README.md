@@ -1,21 +1,21 @@
-# Scripts système
+# Miscellaneous scripts
 
-## Arborescence
+## Structure
 
-* `bin/` : exécutables
-* `etc/` : configurations
-* `lib/` : librairies
+* `bin/` : executables
+* `lib/` : libraries
 * `src/` : sources
+
 
 ## Installation
 
 ```bash
-# installation
+# install
 make
 
-# alternativement
-make install
-
-# désinstallation
+# uninstall
 make uninstall
+
+# shellcheck on all files
+make check
 ```
