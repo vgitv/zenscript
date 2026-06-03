@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 
 # target directories
-local := ~/.local/bin ~/.local/share ~/.local/state ~/.local/src ~/.local/lib ~/.local/etc
+local := ~/.local/bin ~/.local/share ~/.local/state ~/.local/src ~/.local/lib
 
 # bin
 sourcebin := $(wildcard bin/*)
@@ -20,10 +20,7 @@ targeteadmin := ~/.local/src/eadmin/main.tex
 
 targetsrc := $(targetcss) $(targeteadmin)
 
-# etc
-targetetc := ~/.local/etc/homesync/exclude
-
-install: $(local) $(targetbin) $(targetlib) $(targetsrc) $(targetetc)
+install: $(local) $(targetbin) $(targetlib) $(targetsrc)
 
 .PHONY: print
 print:
@@ -56,9 +53,6 @@ print:
 ~/.local/lib:
 	mkdir $@
 
-~/.local/etc:
-	mkdir $@
-
 # binaires (implicit rule)
 ~/.local/bin/%: bin/%
 	cp $^ ~/.local/bin/ && chmod 750 $@
@@ -80,19 +74,11 @@ print:
 ~/.local/src/eadmin:
 	mkdir $@
 
-# etc
-~/.local/etc/homesync/%: ~/.local/etc/homesync etc/homesync/%
-	cp $(word 2,$^) ~/.local/etc/homesync/ && chmod 640 $@
-
-~/.local/etc/homesync:
-	mkdir $@
-
 # remove all file targets but not directories
 uninstall:
 	rm -f $(targetbin)
 	rm -f $(targetlib)
 	rm -f $(targetsrc)
-	rm -f $(targetetc)
 
 .PHONY: check
 check:
