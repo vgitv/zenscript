@@ -65,6 +65,7 @@ mkdir -pv "$BACKUP_HOME" "$BACKUP_PICS"
 log info "Sync home"
 rsync \
     --archive \
+    --inplace \
     --human-readable \
     --info=progress2 \
     --exclude="/Images/" \
@@ -85,6 +86,7 @@ echo 'Done'
 log info "Sync pictures"
 rsync \
     --archive \
+    --inplace \
     --human-readable \
     --info=progress2 \
     "$SOURCE_PICS"/* \
