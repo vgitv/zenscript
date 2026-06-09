@@ -28,6 +28,13 @@ fi
 # Install
 sudo true
 
+DEFAULT_CONFIG_CURRENT="$HOME/.config/kitty/default-${CURRENT_KITTY_VERSION}.conf"
+DEFAULT_CONFIG_LATEST="$HOME/.config/kitty/default-${LATEST_KITTY_VERSION}.conf"
+
+if [[ "$CURRENT_KITTY_VERSION" != 'NONE' ]]; then
+    /usr/local/bin/kitty +runpy 'from kitty.config import *; print(commented_out_default_config())' > "$DEFAULT_CONFIG_CURRENT"
+fi
+
 # launch=n in order to avoid the installer to execute kitty (installer argument)
 curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
 
@@ -38,9 +45,13 @@ sudo chown -R root:root /opt/kitty.app
 sudo chmod -R 755 /opt/kitty.app
 sudo ln -s /opt/kitty.app/bin/kitty /usr/local/bin/kitty
 
-DEFAULT_CONFIG="$HOME/.config/kitty/default-${LATEST_KITTY_VERSION}.conf"
-/usr/local/bin/kitty +runpy 'from kitty.config import *; print(commented_out_default_config())' > "$DEFAULT_CONFIG"
+/usr/local/bin/kitty +runpy 'from kitty.config import *; print(commented_out_default_config())' > "$DEFAULT_CONFIG_LATEST"
 
 echo "Kitty updated to $LATEST_KITTY_VERSION"
 kitty --version
-echo "You should look for changes in the default configuration generated here: ${DEFAULT_CONFIG}"
+
+if [[ "$CURRENT_KITTY_VERSION" != 'NONE' ]]; then
+    if diff --color=auto "$DEFAULT_CONFIG_CURRENT" "$DEFAULT_CONFIG_LATEST"; then
+        echo "Default configuration has evolved. Check: ${DEFAULT_CONFIG_LATEST}"
+    fi
+fi
