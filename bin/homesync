@@ -62,7 +62,7 @@ mkdir -pv "$BACKUP_HOME" "$BACKUP_PICS"
 
 
 # Mirror backup - Source and target should match exactly
-log info "Sync home"
+log info 'Sync home'
 rsync \
     --archive \
     --inplace \
@@ -82,8 +82,24 @@ rsync \
 echo 'Done'
 
 
+# Backup password store
+if [[ -d ~/.local/share/password-store ]]; then
+    log info 'Sync password store'
+    mkdir -p "${BACKUP_HOME}/.local/share"
+    rsync \
+        --archive \
+        --inplace \
+        --human-readable \
+        --info=progress2 \
+        --delete \
+        "${HOME}/.local/share/password-store" \
+        "${BACKUP_HOME}/.local/share"
+    echo 'Done'
+fi
+
+
 # Source to destination backup - No deletion on the receiving side
-log info "Sync pictures"
+log info 'Sync pictures'
 rsync \
     --archive \
     --inplace \
