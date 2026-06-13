@@ -7,38 +7,38 @@ function log {
     echo -e "\033[1;34m$*\033[0m"
 }
 
-function ubuntu_up {
-    date
-    sudo true
+function main {
+    local distribution
 
-    echo
-    log Update
-    sudo apt -y update
+    distribution="$(lsb_release -a 2> /dev/null | awk '/^Distributor ID:/ { print $3 }')"
 
-    echo
-    log Upgrade
-    sudo apt -y upgrade
+    case "${distribution}" in
+        'Ubuntu')
+            log Update
+            sudo apt -y update
+
+            log Upgrade
+            sudo apt -y upgrade
+            ;;
+        'ManjaroLinux')
+            log Upgrade
+            sudo pacman -Syyu --noprogressbar --noconfirm
+            ;;
+        *)
+            echo "Unknown distribution ${distribution}."
+            exit 1
+            ;;
+    esac
 }
 
-function manjaro_up {
-    log Manjaro Upgrade
-    sudo pacman -Syyu --noprogressbar --noconfirm
-}
+LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/up"
+LOG_FILE="${LOG_DIR}/$(date '+%Y%m%d_%H%M%S')_upgrade.log"
 
-LOG_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/up.log"
-distribution="$(lsb_release -a 2> /dev/null | awk '/^Distributor ID:/ { print $3 }')"
+[[ -d "$LOG_DIR" ]] || mkdir -pv "$LOG_DIR"
 
-case "${distribution}" in
-    'Ubuntu')
-        ubuntu_up > >(tee "${LOG_FILE}") 2>&1
-        ;;
-    'ManjaroLinux')
-        manjaro_up > >(tee "${LOG_FILE}") 2>&1
-        ;;
-    *)
-        echo "Unknown distribution ${distribution}."
-        exit 1
-        ;;
-esac
+log Delete old log files
+find "$LOG_DIR" -type f -name '*.log' -ctime +180 -delete
 
-echo -e "\nDone ! Log file saved in ${LOG_FILE}"
+main > >(tee "${LOG_FILE}") 2>&1
+
+log "System upgraded successfully! Log file saved in ${LOG_FILE}"
