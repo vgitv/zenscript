@@ -1,35 +1,39 @@
 #!/bin/bash
 set -euo pipefail
 
-# Update system. Store log file in log file
+# Update system
+
+function log {
+    echo -e "\033[1;34m$*\033[0m"
+}
 
 function ubuntu_up {
     date
     sudo true
 
     echo
-    figlet Update
+    log Update
     sudo apt -y update
 
     echo
-    figlet Upgrade
+    log Upgrade
     sudo apt -y upgrade
 }
 
 function manjaro_up {
-    figlet -w 120 'Manjaro Upgrade'
-    (set -x; sudo pacman -Syyu --noprogressbar --noconfirm)
+    log Manjaro Upgrade
+    sudo pacman -Syyu --noprogressbar --noconfirm
 }
 
-log="${XDG_STATE_HOME:-$HOME/.local/state}/up.log"
+LOG_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/up.log"
 distribution="$(lsb_release -a 2> /dev/null | awk '/^Distributor ID:/ { print $3 }')"
 
 case "${distribution}" in
     'Ubuntu')
-        ubuntu_up > >(tee "${log}") 2>&1
+        ubuntu_up > >(tee "${LOG_FILE}") 2>&1
         ;;
     'ManjaroLinux')
-        manjaro_up > >(tee "${log}") 2>&1
+        manjaro_up > >(tee "${LOG_FILE}") 2>&1
         ;;
     *)
         echo "Unknown distribution ${distribution}."
@@ -37,4 +41,4 @@ case "${distribution}" in
         ;;
 esac
 
-echo -e "\nDone ! Log file saved in ${log}"
+echo -e "\nDone ! Log file saved in ${LOG_FILE}"
