@@ -23,6 +23,8 @@ function main {
         'ManjaroLinux')
             log Upgrade
             sudo pacman -Syyu --noprogressbar --noconfirm
+            log Clean cache
+            sudo pacman -Sc --noconfirm
             ;;
         *)
             echo "Unknown distribution ${distribution}."
@@ -30,6 +32,9 @@ function main {
             ;;
     esac
 }
+
+# Ask password once at the begining
+sudo true
 
 LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/up"
 LOG_FILE="${LOG_DIR}/$(date '+%Y%m%d_%H%M%S')_upgrade.log"
