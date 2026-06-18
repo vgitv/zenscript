@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+
+echo 'Get Hack Nerd font latest release'
+curl --output-dir /tmp -OL https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.tar.xz
+
+echo 'Install Hack Nerd font'
+rm -rf ~/.local/share/fonts/HackNerdFont
+mkdir -p ~/.local/share/fonts/HackNerdFont
+tar -C ~/.local/share/fonts/HackNerdFont -xvf /tmp/Hack.tar.xz
+rm -vf /tmp/Hack.tar.xz
+
+echo 'Hack nerd font available here: ~/.local/share/fonts/HackNerdFont'
