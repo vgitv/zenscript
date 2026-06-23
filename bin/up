@@ -14,13 +14,15 @@ function main {
 
     case "${distribution}" in
         'Ubuntu')
-            has_docker=n
+            local has_docker=n
 
-            if systemctl status docker | grep -q 'Active: active'; then
+            if systemctl status docker.service | grep -q 'Active: active'; then
                 # Else Docker uses a TUI asking to stop docker processes, that freezes the terminal
                 has_docker=y
                 log Stop docker
-                sudo systemctl stop docker
+                sudo systemctl stop docker.socket
+                sudo systemctl stop docker.service
+                echo Done
             fi
 
             log Update
@@ -31,7 +33,9 @@ function main {
 
             if [[ "$has_docker" = 'y' ]]; then
                 log Start docker
-                sudo systemctl start docker
+                sudo systemctl start docker.service
+                sudo systemctl start docker.socket
+                echo Done
             fi
             ;;
         'ManjaroLinux')
@@ -57,7 +61,9 @@ LOG_FILE="${LOG_DIR}/$(date '+%Y%m%d_%H%M%S')_upgrade.log"
 
 log Delete old log files
 find "$LOG_DIR" -type f -name '*.log' -ctime +180 -delete
+echo Done
 
 main > >(tee "${LOG_FILE}") 2>&1
 
-log "System upgraded successfully! Log file saved in ${LOG_FILE}"
+log "System upgraded successfully!"
+echo "Log file saved in $(ls --hyperlink "${LOG_FILE}")"
