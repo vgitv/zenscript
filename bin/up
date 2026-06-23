@@ -14,11 +14,25 @@ function main {
 
     case "${distribution}" in
         'Ubuntu')
+            has_docker=n
+
+            if systemctl status docker | grep -q 'Active: active'; then
+                # Else Docker uses a TUI asking to stop docker processes, that freezes the terminal
+                has_docker=y
+                log Stop docker
+                sudo systemctl stop docker
+            fi
+
             log Update
-            sudo apt -y update
+            sudo apt-get -y --quiet update
 
             log Upgrade
-            sudo apt -y upgrade
+            sudo apt-get -y --quiet upgrade
+
+            if [[ "$has_docker" = 'y' ]]; then
+                log Start docker
+                sudo systemctl start docker
+            fi
             ;;
         'ManjaroLinux')
             log Upgrade
