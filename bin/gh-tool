@@ -2,32 +2,40 @@
 set -euo pipefail
 
 FZF_ARGS=(--prompt=' Github ❯ ' --layout=reverse --scrollbar='█' --delimiter='/' '--nth=-1')
-REPO_LIST="${XDG_DATA_HOME:-$HOME/.local/share}/repo_list.json"
+REPO_LIST_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zenscript-gh-tool"
 
 choice="$(echo -e "update\nclone\nbrowse" | grep -E "^$1")"
 
 case "$choice" in
     update)
-        default_user="$(git config --global --list | grep 'user.name' | awk -F '=' '{ print $2 }')"
-        echo -n "Github user? (default ${default_user}) "
-        read -r user
-        if [[ -z "$user" ]]; then
-            user="$default_user"
+        mkdir -p "$REPO_LIST_DIR"
+        default_owner="$(git config --global --list | grep 'user.name' | awk -F '=' '{ print $2 }')"
+        echo -n "Github owner? (default ${default_owner}) "
+        read -r owner
+        if [[ -z "$owner" ]]; then
+            owner="$default_owner"
         fi
-        gh repo list -L 10000 --json=owner,name,description,createdAt,isArchived "$user" | jq . > "$REPO_LIST"
+        gh repo list -L 10000 --json=owner,name,description,createdAt,isArchived "$owner" | jq . > "$REPO_LIST_DIR/${owner}.json"
         ;;
     clone)
-        repo="$(jq -r '.[] | "\(.owner.login)/\(.name)"' "$REPO_LIST" | fzf "${FZF_ARGS[@]}")"
-        mkdir -p ~/Code
-        repo_basename="$(basename "$repo")"
-        if [[ -d ~/Code/"$repo_basename" ]]; then
-            echo "${repo_basename} already cloned"
-        else
-            git clone "git@github.com:${repo}.git" ~/Code/"$repo_basename"
+        repo="$(jq -r '.[] | "\(.owner.login)/\(.name)"' "$REPO_LIST_DIR"/*.json | fzf "${FZF_ARGS[@]}" --height=12)"
+
+        if [[ -z "$repo" ]]; then
+            exit
         fi
+
+        mkdir -p "$HOME/Code/$(dirname "$repo")"
+
+        if [[ ! -d "$HOME/Code/$repo" ]]; then
+            git clone "git@github.com:${repo}.git" ~/Code/"$repo"
+        fi
+
+        # You can define an alias that read this echo to change directory:
+        # alias clone='cd $(gh-tool clone)'
+        echo "$HOME/Code/$repo"
         ;;
     browse)
-        repo="$(jq -r '.[] | "\(.isArchived) \(.owner.login)/\(.name)"' "$REPO_LIST" | sed -E -e 's/^true/ /' -e 's/false/ /' | fzf "${FZF_ARGS[@]}" | awk '{ print $2 }')"
+        repo="$(jq -r '.[] | "\(.isArchived) \(.owner.login)/\(.name)"' "$REPO_LIST_DIR"/* | sed -E -e 's/^true/ /' -e 's/false/ /' | fzf "${FZF_ARGS[@]}" | awk '{ print $2 }')"
         $BROWSER "https://github.com/${repo}"
         ;;
     *)
