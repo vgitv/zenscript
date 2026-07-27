@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# Browse / clone github repositories from a local repo list.
+# Should be a script and not a zsh function to be called form a desktop environment keyboard shortcut.
+
 FZF_ARGS=(--prompt=' Github ❯ ' --layout=reverse --scrollbar='█' --delimiter='/' '--nth=-1')
 REPO_LIST_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zenscript-gh-tool"
 
