@@ -78,6 +78,7 @@ kitty \
     -o "foreground=${fg}" \
     -o 'hide_window_decorations yes' \
     -o 'window_padding_width=10' \
+    -o 'background_opacity=0.75' \
     --position="${x_position}x${y_position}" \
     "${KITTY_OPT[@]}" \
     -- \
