@@ -18,7 +18,8 @@ case "$choice" in
         if [[ -z "$owner" ]]; then
             owner="$default_owner"
         fi
-        gh repo list -L 10000 --json=owner,name,description,createdAt,isArchived "$owner" | jq . > "$REPO_LIST_DIR/${owner}.json"
+        gh repo list -L 10000 --json=owner,name,description,createdAt,isArchived "$owner" | jq . > "$REPO_LIST_DIR/${owner}.json.tmp"
+        mv "$REPO_LIST_DIR/${owner}.json.tmp" "$REPO_LIST_DIR/${owner}.json"
         ;;
     clone)
         repo="$(jq -r '.[] | "\(.owner.login)/\(.name)"' "$REPO_LIST_DIR"/*.json | fzf "${FZF_ARGS[@]}" --height=12)"
