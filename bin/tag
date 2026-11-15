@@ -121,8 +121,8 @@ while IFS= read -r flac; do
 done < "$tmp"
 
 log info 'Set cover picture'
-# album cover is the first picture found (png or jpg or jpeg)
-cover=$(find "$location" -name "*.png" -or -name "*.jp*g" | head -n 1)
+# Look for cover.jpg file (much more lightweight than png)
+cover=$(find "$location" -name "cover.jpg")
 if [[ -z ${cover} ]]; then
     log warn "No cover found in ${location}"
 else
