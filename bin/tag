@@ -1,134 +1,224 @@
 #!/bin/bash
 set -euo pipefail
-IFS=$'\n\t'
 
-here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-# shellcheck source=/dev/null
-source "$here/../lib/logging.sh"
-# shellcheck source=/dev/null
-source "$here/../lib/string.sh"
 
-[[ $# -eq 0 ]] && cat << EOF && exit 0
+# Help ----------------------------------------------------------------------------------------------------------------
+
+[[ $# -ne 1 ]] && cat << EOF && exit 0
 NAME
     tag
 
 SYNOPSIS
-    tag [OPTIONS] directory titles_list_file
+    tag init [JPG_COVER]
+    tag set DIRECTORY
 
 DESCRIPTION
     Set tag (metadata) to all flac files in a directory. Flac files must be
     ordered allong with titles tracks.
 
-OPTIONS
-    --album=
-        Album name
-
-    --artist=
-        Artist name
-
-    --year=
-        Album date
-
-    --genre=
-        Album genre
-
 EXAMPLES
-    # named args can be used
-    tag --album='album title' --artist='artist name' --year='2023' --genre='Rock' testdir/ titles.txt
-    
-    # if not they will be read from stdin
-    tag testdir/ titles.txt
+    tag init
+    tag init ~/Download/album_cover.jpg
+    tag set .
 EOF
 
-while [[ $1 =~ ^-- ]]; do
-    case $1 in
-        --album=*)
-            album="${1/--album=}"
-            shift
-            ;;
-        --artist=*)
-            artist="${1/--artist=}"
-            shift
-            ;;
-        --year=*)
-            year="${1/--year=}"
-            shift
-            ;;
-        --genre=*)
-            genre="${1/--genre=}"
-            shift
-            ;;
-        *)
-            echo "Invalid option $1"
-            ;;
-    esac
-done
 
-# target directory
-location=$(realpath "$1")
-# file with list of track titles
-titlesFile="$2"
+# Global variables ----------------------------------------------------------------------------------------------------
 
-# Ask for mutual tags if not defined
-[ -z "${album:-}" ] && echo 'Enter the album name.' && read -r album
-[ -z "${artist:-}" ] && echo 'Enter the artist name.' && read -r artist
-[ -z "${year:-}" ] && echo 'Enter the year.' && read -r year
-[ -z "${genre:-}" ] && echo 'Enter the genre.' && read -r genre
+# Jpg file is much more lightweight than png
+COVER_FILE='cover.jpg'
 
-# Set track number
-tracktotal=$(wc -l < "$titlesFile")
-flactotal=$(find "$location" -type f -name "*.flac" | wc -l)
+# File with track listing, manually generated
+TRACKS_FILE='tracks'
 
-if [[ ${tracktotal} -ne ${flactotal} ]]; then
-    error "Number of flac different to number of titles"
-fi
+# File with tags, automatically generated
+METADATA_FILE='metadata'
 
-log info 'Clean metadata'
-echo 'Remove tags'
-metaflac --remove-all-tags "$location"/*.flac
-echo 'Remove pictures'
-metaflac --remove-all "$location"/*.flac
 
-log info 'Set shared tags'
-echo "ARTIST: ${artist}"
-echo "ALBUMARTIST: ${artist}"
-echo "ALBUM: ${album}"
-echo "DATE: ${year}"
-echo "GENRE: ${genre}"
-echo "TRACKTOTAL: ${tracktotal}"
-metaflac --set-tag=ARTIST="$artist" "$location"/*.flac
-metaflac --set-tag=ALBUMARTIST="$artist" "$location"/*.flac
-metaflac --set-tag=ALBUM="$album" "$location"/*.flac
-metaflac --set-tag=DATE="$year" "$location"/*.flac
-metaflac --set-tag=GENRE="$genre" "$location"/*.flac
-metaflac --set-tag=TRACKTOTAL="$tracktotal" "$location"/*.flac
+# Functions -----------------------------------------------------------------------------------------------------------
 
-log info 'Set track-specific tag and sanitize filename'
-mapfile -t titles < "$titlesFile"
-tmp=$(mktemp)
-ls -1 "$location"/*.flac > "$tmp"
-cpt=0
+function log {
+    local level="$1" && shift
+    declare -A color
+    color['debug']=''
+    color['info']='\033[1;32m'
+    color['warning']='\033[1;33m'
+    color['error']='\033[1;31m'
+    echo -e "${color[$level]}${level^^} - $*\033[0m"
+}
 
-while IFS= read -r flac; do
-    ntrack="$(printf "%02d" "$((cpt+1))")"
-    echo "${ntrack} - ${titles[${cpt}]}"
-    metaflac --set-tag=TITLE="${titles[${cpt}]}" "$flac"
-    metaflac --set-tag=TRACKNUMBER="$ntrack" "$flac"
-    title="$(sanitize "${titles[${cpt}]}")"
-    dest="${location}/${ntrack}_${title}.flac"
-    [[ ${flac} != "${dest}" ]] && mv -f "$flac" "$dest"
-    cpt=$((cpt+1))
-done < "$tmp"
 
-log info 'Set cover picture'
-# Look for cover.jpg file (much more lightweight than png)
-cover=$(find "$location" -name "cover.jpg")
-if [[ -z ${cover} ]]; then
-    log warn "No cover found in ${location}"
-else
-    echo "Cover: ${cover}"
-    metaflac --import-picture-from="$cover" "$location"/*.flac
-fi
+function error {
+    log error "$*"
+    exit 1
+}
 
-rm "$tmp"
-log info 'All done!'
+
+function sanitize {
+    echo "${1,,}" | sed -E \
+        -e 's/œ/oe/g' \
+        -e 's/ç/c/g' \
+        -e 's/ñ/n/g' \
+        -e 's/[áàäâ]/a/g' \
+        -e 's/[éèëê]/e/g' \
+        -e 's/[íìïî]/i/g' \
+        -e 's/[óòöô]/o/g' \
+        -e 's/[úùüû]/u/g' \
+        -e 's/\s+/_/g' \
+        -e 's/[^a-z0-9]/_/g' \
+        -e 's/_+/_/g'
+}
+
+
+function init_directory {
+    if [[ $# -gt 1 ]]; then
+        error "Too many arguments found for this subcommand: '$*'"
+    fi
+
+    local cover="${1:-}"
+
+    local artist
+    echo -n 'Artist: ' && read -r artist
+
+    local album
+    echo -n 'Album: ' && read -r album
+
+    local year
+    echo -n 'Year: ' && read -r year
+
+    local genre
+    echo -n 'Genre: ' && read -r genre
+
+    local album_directory
+    album_directory="$(sanitize "$artist")__$(sanitize "$album")"
+
+    if [[ -d "$album_directory" ]]; then
+        error "Album directory already exists: $album_directory"
+    fi
+
+    mkdir "$album_directory"
+
+    touch "$album_directory/$TRACKS_FILE"
+
+    {
+        echo "ARTIST=$artist"
+        echo "ALBUMARTIST=$artist"
+        echo "ALBUM=$album"
+        echo "DATE=$year"
+        echo "GENRE=$genre"
+    } > "$album_directory/$METADATA_FILE"
+
+    if [[ -z "$cover" ]]; then
+        log warning "No cover argument, you should put a $COVER_FILE file inside the directory $album_directory"
+        return
+    fi
+
+    if [[ "$cover" = *.jpg ]]; then
+        error "Cover should be a jpg file, '$cover' is not valid"
+    fi
+
+    if [[ ! -r "$cover" ]]; then
+        error "File not found: $cover"
+    fi
+
+    mv "$cover" "$album_directory/$COVER_FILE"
+    log info "Album directory successfully created: $album_directory"
+}
+
+
+function set_tags {
+    if [[ $# -ne 1 ]]; then
+        error "This subcommand should take exactly one argument, found '$*'"
+    fi
+
+    local location="$1"
+
+    if [[ ! -d "$location" ]]; then
+        error "Directory not found: '$location'"
+    fi
+
+    if [[ ! -r "$location/$COVER_FILE" ]]; then
+        error "File $COVER_FILE is missing, run 'tag init [JPG_COVER]' first"
+    fi
+
+    if [[ ! -r "$location/$TRACKS_FILE" ]]; then
+        error "File $TRACKS_FILE is missing, run 'tag init [JPG_COVER]' first"
+    fi
+
+    if [[ ! -r "$location/$METADATA_FILE" ]]; then
+        error "File $METADATA_FILE is missing, run 'tag init [JPG_COVER]' first"
+    fi
+
+    # Set track number
+    tracktotal=$(wc -l < "$TRACKS_FILE")
+    flactotal=$(find "$location" -type f -name "*.flac" | wc -l)
+
+    if [[ ${tracktotal} -ne ${flactotal} ]]; then
+        error "Number of flac files and number of tracks in file '$TRACKS_FILE' differs"
+    fi
+
+    log info 'Cleanup existing metadata'
+    echo 'Remove tags'
+    metaflac --remove-all-tags "$location"/*.flac
+    echo 'Remove pictures'
+    metaflac --remove-all "$location"/*.flac
+
+    log info "Reset TRACKTOTAL metadata"
+    if grep -qE '^TRACKTOTAL=' "$METADATA_FILE"; then
+        echo 'Update TRACKTOTAL'
+        sed -i -E "s/TRACKTOTAL=.*/TRACKTOTAL=$tracktotal/g" "$METADATA_FILE"
+    else
+        echo 'Set TRACKTOTAL'
+        echo "TRACKTOTAL=$tracktotal" >> "$location/METADATA_FILE"
+    fi
+
+    log info 'Display shared tags'
+    cat "$location/$METADATA_FILE"
+
+    log info 'Set shared tags'
+    metaflac --import-tags-from="$METADATA_FILE" "$location"/*.flac
+    echo 'Done'
+
+    log info 'Set track-specific tag and sanitize filename'
+    declare -a tracks
+    mapfile -t tracks < "$TRACKS_FILE"
+    local cpt=0
+
+    local flac_file
+    local ntrack
+    for flac_file in "$location"/*.flac; do
+        ntrack="$(printf "%02d" "$((cpt+1))")"
+        echo "${ntrack} - ${tracks[$cpt]}"
+        metaflac \
+            --set-tag=TITLE="${tracks[$cpt]}" \
+            --set-tag=TRACKNUMBER="$ntrack" \
+            "$flac_file"
+        sanitized_filename="${ntrack}_$(sanitize "${tracks[$cpt]}")"
+        mv -vf -- "$flac_file" "$location/$sanitized_filename"
+        cpt=$((cpt+1))
+    done
+    echo 'Done'
+
+    log info 'Set cover picture'
+    metaflac --import-picture-from="$COVER_FILE" "$location"/*.flac
+    echo 'Done'
+}
+
+
+# Core ----------------------------------------------------------------------------------------------------------------
+
+SUBCOMMAND="$1" && shift
+
+case "$SUBCOMMAND" in
+    init)
+        init_directory "$@"
+        ;;
+    set)
+        set_tags "$@"
+        ;;
+    *)
+        error "Invalid subcommand '$SUBCOMMAND'"
+        ;;
+esac
+
+log info 'All set!'
