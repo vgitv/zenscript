@@ -4,7 +4,7 @@ set -euo pipefail
 
 # Help ----------------------------------------------------------------------------------------------------------------
 
-[[ $# -ne 1 ]] && cat << EOF && exit 0
+[[ $# -eq 0 ]] && cat << EOF && exit 0
 NAME
     tag
 
@@ -113,7 +113,7 @@ function init_directory {
         return
     fi
 
-    if [[ "$cover" = *.jpg ]]; then
+    if [[ "$cover" != *.jpg ]]; then
         error "Cover should be a jpg file, '$cover' is not valid"
     fi
 
