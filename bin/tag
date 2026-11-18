@@ -169,7 +169,7 @@ function set_tags {
         sed -i -E "s/TRACKTOTAL=.*/TRACKTOTAL=$tracktotal/g" "$METADATA_FILE"
     else
         echo 'Set TRACKTOTAL'
-        echo "TRACKTOTAL=$tracktotal" >> "$location/METADATA_FILE"
+        echo "TRACKTOTAL=$tracktotal" >> "$location/$METADATA_FILE"
     fi
 
     log info 'Display shared tags'
@@ -193,8 +193,10 @@ function set_tags {
             --set-tag=TITLE="${tracks[$cpt]}" \
             --set-tag=TRACKNUMBER="$ntrack" \
             "$flac_file"
-        sanitized_filename="${ntrack}_$(sanitize "${tracks[$cpt]}")"
-        mv -vf -- "$flac_file" "$location/$sanitized_filename"
+        sanitized_filename="${ntrack}_$(sanitize "${tracks[$cpt]}").flac"
+        if [[ "$flac_file" != "$location/$sanitized_filename" ]]; then
+            mv -vf -- "$flac_file" "$location/$sanitized_filename"
+        fi
         cpt=$((cpt+1))
     done
     echo 'Done'
