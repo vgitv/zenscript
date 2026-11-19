@@ -49,7 +49,7 @@ function log {
 
 
 function error {
-    log error "$*"
+    log error "$*" >&2
     exit 1
 }
 
@@ -171,26 +171,30 @@ function set_tags {
         error "File $METADATA_FILE is missing, run 'tag init [JPG_COVER]' first"
     fi
 
-    # Set track number
-    local tracktotal
-    tracktotal="$(wc -l < "$TRACKS_FILE")"
+    # Count total flac files
     local flactotal
-    flactotal="$(find "$location" -type f -name "*.flac" | wc -l)"
+    flactotal="$(find "$location" -mindepth 1 -maxdepth 1 -type f -name "*.flac" | wc -l)"
+
+    if [[ $flactotal -eq 0 ]]; then
+        error "No flac files found in $location"
+    fi
+
+    # Count tracks
+    local tracktotal
+    tracktotal="$(wc -l < "$location/$TRACKS_FILE")"
 
     if [[ $tracktotal -ne $flactotal ]]; then
         error "Number of flac files and number of tracks in file '$TRACKS_FILE' differs"
     fi
 
     log info 'Cleanup existing metadata'
-    echo 'Remove tags'
-    metaflac --remove-all-tags "$location"/*.flac
-    echo 'Remove pictures'
+    echo 'Remove tags and pictures'
     metaflac --remove-all "$location"/*.flac
 
     log info "Reset TRACKTOTAL metadata"
-    if grep -qE '^TRACKTOTAL=' "$METADATA_FILE"; then
+    if grep -qE '^TRACKTOTAL=' "$location/$METADATA_FILE"; then
         echo 'Update TRACKTOTAL'
-        sed -i -E "s/TRACKTOTAL=.*/TRACKTOTAL=$tracktotal/g" "$METADATA_FILE"
+        sed -i -E "s/TRACKTOTAL=.*/TRACKTOTAL=$tracktotal/g" "$location/$METADATA_FILE"
     else
         echo 'Set TRACKTOTAL'
         echo "TRACKTOTAL=$tracktotal" >> "$location/$METADATA_FILE"
@@ -200,13 +204,13 @@ function set_tags {
     cat "$location/$METADATA_FILE"
 
     log info 'Set shared tags'
-    metaflac --import-tags-from="$METADATA_FILE" "$location"/*.flac
+    metaflac --import-tags-from="$location/$METADATA_FILE" "$location"/*.flac
     echo 'Done'
 
     log info 'Set track-specific tag and sanitize filename'
 
     declare -a tracks
-    mapfile -t tracks < "$TRACKS_FILE"
+    mapfile -t tracks < "$location/$TRACKS_FILE"
 
     local cpt=0
     local flac_file
@@ -224,7 +228,7 @@ function set_tags {
     echo 'Done'
 
     log info 'Set cover picture'
-    metaflac --import-picture-from="$COVER_FILE" "$location"/*.flac
+    metaflac --import-picture-from="$location/$COVER_FILE" "$location"/*.flac
     echo 'Done'
 }
 
