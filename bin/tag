@@ -79,17 +79,23 @@ function init_directory {
 
     local cover="${1:-}"
 
+    if [[ -n "$cover" ]]; then
+        # Should be jpg
+        if [[ "$cover" != *.jpg ]]; then
+            error "Cover should be a jpg file, '$cover' is not valid"
+        fi
+
+        # Should exists
+        if [[ ! -r "$cover" ]]; then
+            error "File not found: $cover"
+        fi
+    fi
+
     local artist
     echo -n 'Artist: ' && read -r artist
 
     local album
     echo -n 'Album: ' && read -r album
-
-    local year
-    echo -n 'Year: ' && read -r year
-
-    local genre
-    echo -n 'Genre: ' && read -r genre
 
     local album_directory
     album_directory="$(sanitize "$artist")__$(sanitize "$album")"
@@ -97,6 +103,12 @@ function init_directory {
     if [[ -d "$album_directory" ]]; then
         error "Album directory already exists: $album_directory"
     fi
+
+    local year
+    echo -n 'Year: ' && read -r year
+
+    local genre
+    echo -n 'Genre: ' && read -r genre
 
     mkdir "$album_directory"
 
@@ -112,18 +124,10 @@ function init_directory {
 
     if [[ -z "$cover" ]]; then
         log warning "No cover argument, you should put a $COVER_FILE file inside the directory $album_directory"
-        return
+    else
+        mv "$cover" "$album_directory/$COVER_FILE"
     fi
 
-    if [[ "$cover" != *.jpg ]]; then
-        error "Cover should be a jpg file, '$cover' is not valid"
-    fi
-
-    if [[ ! -r "$cover" ]]; then
-        error "File not found: $cover"
-    fi
-
-    mv "$cover" "$album_directory/$COVER_FILE"
     log info "Album directory successfully created: $album_directory"
 }
 
