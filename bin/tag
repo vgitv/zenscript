@@ -14,7 +14,7 @@ SYNOPSIS
 
 DESCRIPTION
     Set tag (metadata) to all flac files in a directory. Flac files must be
-    ordered allong with titles tracks.
+    ordered along with track names.
 
 EXAMPLES
     tag init
@@ -66,7 +66,9 @@ function sanitize {
         -e 's/[úùüû]/u/g' \
         -e 's/\s+/_/g' \
         -e 's/[^a-z0-9]/_/g' \
-        -e 's/_+/_/g'
+        -e 's/_+/_/g' \
+        -e 's/_$//g' \
+        -e 's/^_//g'
 }
 
 
