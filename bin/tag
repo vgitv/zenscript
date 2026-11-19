@@ -72,6 +72,22 @@ function sanitize {
 }
 
 
+function safe_mv {
+    if [[ $# -ne 2 ]]; then
+        error "This function should take exactly two arguments, found $*"
+    fi
+
+    local src="$1"
+    local dest="$2"
+
+    if [[ $src -ef $dest ]]; then
+        echo "safe_mv: '$src' and '$dest' are the same file"
+    else
+        mv -vi -- "$src" "$dest"
+    fi
+}
+
+
 function init_directory {
     if [[ $# -gt 1 ]]; then
         error "Too many arguments found for this subcommand: '$*'"
@@ -156,10 +172,12 @@ function set_tags {
     fi
 
     # Set track number
-    tracktotal=$(wc -l < "$TRACKS_FILE")
-    flactotal=$(find "$location" -type f -name "*.flac" | wc -l)
+    local tracktotal
+    tracktotal="$(wc -l < "$TRACKS_FILE")"
+    local flactotal
+    flactotal="$(find "$location" -type f -name "*.flac" | wc -l)"
 
-    if [[ ${tracktotal} -ne ${flactotal} ]]; then
+    if [[ $tracktotal -ne $flactotal ]]; then
         error "Number of flac files and number of tracks in file '$TRACKS_FILE' differs"
     fi
 
@@ -186,23 +204,21 @@ function set_tags {
     echo 'Done'
 
     log info 'Set track-specific tag and sanitize filename'
+
     declare -a tracks
     mapfile -t tracks < "$TRACKS_FILE"
-    local cpt=0
 
+    local cpt=0
     local flac_file
     local ntrack
+    local sanitized_filename
+
     for flac_file in "$location"/*.flac; do
         ntrack="$(printf "%02d" "$((cpt+1))")"
         echo "${ntrack} - ${tracks[$cpt]}"
-        metaflac \
-            --set-tag=TITLE="${tracks[$cpt]}" \
-            --set-tag=TRACKNUMBER="$ntrack" \
-            "$flac_file"
+        metaflac --set-tag=TITLE="${tracks[$cpt]}" --set-tag=TRACKNUMBER="$ntrack" "$flac_file"
         sanitized_filename="${ntrack}_$(sanitize "${tracks[$cpt]}").flac"
-        if [[ "$flac_file" != "$location/$sanitized_filename" ]]; then
-            mv -vf -- "$flac_file" "$location/$sanitized_filename"
-        fi
+        safe_mv "$flac_file" "$location/$sanitized_filename"
         cpt=$((cpt+1))
     done
     echo 'Done'
