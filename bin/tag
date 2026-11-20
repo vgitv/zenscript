@@ -35,7 +35,7 @@ TRACKS_FILE='tracks'
 METADATA_FILE='metadata'
 
 
-# Functions -----------------------------------------------------------------------------------------------------------
+# General purpose functions -------------------------------------------------------------------------------------------
 
 function log {
     local level="$1" && shift
@@ -88,6 +88,8 @@ function safe_mv {
 }
 
 
+# Init subcommand -----------------------------------------------------------------------------------------------------
+
 function init_directory {
     if [[ $# -gt 1 ]]; then
         error "Too many arguments found for this subcommand: '$*'"
@@ -126,10 +128,14 @@ function init_directory {
     local genre
     echo -n 'Genre: ' && read -r genre
 
-    mkdir "$album_directory"
+    log info 'Create album directory'
+    mkdir -v "$album_directory"
 
+    log info 'Create tracks file'
     touch "$album_directory/$TRACKS_FILE"
+    echo 'Done'
 
+    log info 'Set metadata file'
     {
         echo "ARTIST=$artist"
         echo "ALBUMARTIST=$artist"
@@ -137,16 +143,21 @@ function init_directory {
         echo "DATE=$year"
         echo "GENRE=$genre"
     } > "$album_directory/$METADATA_FILE"
+    cat "$album_directory/$METADATA_FILE"
 
     if [[ -z "$cover" ]]; then
         log warning "No cover argument, you should put a $COVER_FILE file inside the directory $album_directory"
     else
-        mv "$cover" "$album_directory/$COVER_FILE"
+        log info 'Copy cover'
+        cp "$cover" "$album_directory/$COVER_FILE"
+        echo 'Done'
     fi
 
-    log info "Album directory successfully created: $album_directory"
+    log info "Album directory successfully initialized: $album_directory"
 }
 
+
+# Set subcommand ------------------------------------------------------------------------------------------------------
 
 function set_tags {
     if [[ $# -ne 1 ]]; then
